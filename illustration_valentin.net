@@ -1,0 +1,46 @@
+net
+{
+	huginenginegenerator3061656038650325130L = "edu.ucla.belief.inference.JoinTreeSettings@570981d7";
+}
+
+node B
+{
+	states = ("state0" "state1" );
+	position = (369 -238);
+	ismapvariable = "false";
+	label = "B";
+	diagnosistype = "AUXILIARY";
+	excludepolicy = "include whole CPT";
+}
+node C
+{
+	states = ("state0" "state1" );
+	position = (369 -341);
+	ismapvariable = "false";
+	label = "C";
+	diagnosistype = "AUXILIARY";
+	excludepolicy = "include whole CPT";
+}
+node A
+{
+	states = ("state0" "state1" );
+	position = (371 -139);
+	ismapvariable = "false";
+	label = "A";
+	diagnosistype = "AUXILIARY";
+	excludepolicy = "include whole CPT";
+}
+potential ( B | A )
+{
+	data = ((	0.3	0.7	)
+		(	0.8	0.2	));
+}
+potential ( C | B )
+{
+	data = ((	0.1	0.9	)
+		(	0.5	0.5	));
+}
+potential ( A | )
+{
+	data = (	0.6	0.4	);
+}
