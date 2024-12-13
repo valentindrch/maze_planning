@@ -1,0 +1,200 @@
+import numpy as np
+
+# Definition der Wahrscheinlichkeiten
+def p_a0():
+    return [0.5, 0.5] # state actions: left, right
+
+def p_s1_a0():
+    return [[0.99, 0.01], # l
+            [0.01, 0.99]] # r
+
+def p_a1():
+    return [0.5, 0.5] # state actions: left, right
+
+def p_s2_s1_a1():
+    return [[[0.99, 0.01, 0.0, 0.0], 
+             [0.01, 0.99, 0.0, 0.0]], # s1 = l
+            [[0.0, 0.0, 0.99, 0.01], 
+             [0.0, 0.0, 0.01, 0.99]]  # s1 = r
+            ] 
+            # states: ll, lr, rl, rr
+
+def p_a2():
+    return [0.5, 0.5] # state actions: left, right
+
+def p_s3_s2_a2():
+    return [[[0.99, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],                # a2 = l
+             [0.01, 0.99, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]], # s2 = ll     # a2 = r
+            [[0.0, 0.0, 0.99, 0.01, 0.0, 0.0, 0.0, 0.0],                # a2 = l
+             [0.0, 0.0, 0.01, 0.99, 0.0, 0.0, 0.0, 0.0]], # s2 = lr     # a2 = r
+            [[0.0, 0.0, 0.0, 0.0, 0.99, 0.01, 0.0, 0.0],                # a2 = l
+             [0.0, 0.0, 0.0, 0.0, 0.01, 0.99, 0.0, 0.0]], # s2 = rl     # a2 = r
+            [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.99, 0.01],                # a2 = l
+             [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.99]]] # s2 = rr     # a2 = r
+            # states: lll, llr, lrl, lrr, rll, rlr, rrl, rrr
+
+def p_o3_s3():
+    return [[0.00138567717, 0.99861432283],
+		    [1.72536861E-4,0.999827463139],
+		    [0.0111286436,0.9888713564],
+            [0.717798546, 0.28220145399999996],
+            [0.0893763065, 0.9106236935],
+            [0.0893763065, 0.9106236935],
+            [0.00138567717, 0.99861432283],
+            [0.0893763065, 0.9106236935]] # states: optimal_path, non_opt_path
+		
+
+# Initialize Dirichlet counters for each variable
+dirichlet_counter_a0 = np.array([1, 1])
+dirichlet_counter_s1 = np.array([1, 1])
+dirichlet_counter_a1 = np.array([1, 1])
+dirichlet_counter_s2 = np.array([1, 1, 1, 1])
+dirichlet_counter_a2 = np.array([1, 1])
+dirichlet_counter_s3 = np.array([1, 1, 1, 1, 1, 1, 1, 1])
+
+# Initialize posterior storage
+posterior_a0_sampled = np.empty((0, 2))
+posterior_s1_sampled = np.empty((0, 2))
+posterior_a1_sampled = np.empty((0, 2))
+posterior_s2_sampled = np.empty((0, 4))
+posterior_a2_sampled = np.empty((0, 2))
+posterior_s3_sampled = np.empty((0, 8))
+
+
+# Sampling loop
+converged = False
+convergence_window = 50
+convergence_threshold = 1e-3
+
+while not converged:
+    # Sample variables
+    a0 = np.random.choice([0, 1], p=p_a0())
+    s1 = np.random.choice([0, 1], p=p_s1_a0()[a0])
+    a1 = np.random.choice([0, 1], p=p_a1())
+    s2_probs = p_s2_s1_a1()[s1][a1]
+    s2 = np.random.choice([0, 1, 2, 3], p=s2_probs)
+    a2 = np.random.choice([0, 1], p=p_a2())
+    s3_probs = p_s3_s2_a2()[s2][a2]
+    s3 = np.random.choice([0, 1, 2, 3, 4, 5, 6, 7], p=s3_probs)
+    o3_probs = p_o3_s3()[s3]
+    o3 = np.random.choice([0, 1], p=o3_probs)
+
+    # Update counters if evidence matches: evidence = {"o1": 0}
+    if o3 == 0:
+        dirichlet_counter_a0[a0] += 1
+        dirichlet_counter_a1[a1] += 1
+        dirichlet_counter_s1[s1] += 1
+        dirichlet_counter_s2[s2] += 1
+        dirichlet_counter_a2[a2] += 1
+        dirichlet_counter_s3[s3] += 1   
+
+    # Normalize counters to get posteriors
+    posterior_a0_sampled = np.vstack((posterior_a0_sampled, dirichlet_counter_a0 / dirichlet_counter_a0.sum()))
+    posterior_s1_sampled = np.vstack((posterior_s1_sampled, dirichlet_counter_s1 / dirichlet_counter_s1.sum()))
+    posterior_a1_sampled = np.vstack((posterior_a1_sampled, dirichlet_counter_a1 / dirichlet_counter_a1.sum()))
+    posterior_s2_sampled = np.vstack((posterior_s2_sampled, dirichlet_counter_s2 / dirichlet_counter_s2.sum()))
+    posterior_a2_sampled = np.vstack((posterior_a2_sampled, dirichlet_counter_a2 / dirichlet_counter_a2.sum()))
+    posterior_s3_sampled = np.vstack((posterior_s3_sampled, dirichlet_counter_s3 / dirichlet_counter_s3.sum()))
+
+    # Filter out empty samples before checking for convergence
+    non_zero_samples = posterior_a0_sampled[posterior_a0_sampled.sum(axis=1) > 0]
+
+    # Check for convergence
+    if non_zero_samples.shape[0] > convergence_window:
+        mean_p = non_zero_samples[-convergence_window:, 0].mean()
+        diff_p = np.abs(mean_p - non_zero_samples[-convergence_window:, 0]).sum()
+        if diff_p < convergence_threshold:
+            converged = True
+
+
+# Output results
+print("Posterior for a0:", posterior_a0_sampled.mean(axis=0))
+print("")
+print("Posterior for s1:", posterior_s1_sampled.mean(axis=0))
+print("")
+print("Posterior for a1:", posterior_a1_sampled.mean(axis=0))
+print("")
+print("Posterior for s2:", posterior_s2_sampled.mean(axis=0))
+print("")
+print("Posterior for a2:", posterior_a2_sampled.mean(axis=0))
+print("")
+print("Posterior for s3:", posterior_s3_sampled.mean(axis=0))
+print("")
+print("Number of samples:", posterior_a0_sampled.shape[0])
+print("")
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define KL divergence function
+def kl_divergence(p, q):
+    return np.sum(p * np.log(p / q))
+
+# Exact Posteriors according to Samiam
+exact_posteriors = {
+    'a0': [0.7259, 0.2741],  # left, right
+    's1': [0.7305, 0.2695],  # l, r
+    'a1': [0.1867, 0.8133],  # left, right
+    's2': [0.0016, 0.7289, 0.1788, 0.0908],  # ll, lr, rl, rr
+    'a2': [0.1112, 0.8888],  # left, right
+    's3': [0.0014, 0.0002, 0.0111, 0.7178, 0.0894, 0.0894, 0.0014, 0.0894]
+}
+
+# Sampled Posteriors (example values, replace with actual sampled posteriors)
+sampled_posteriors = {
+    'a0': posterior_a0_sampled.mean(axis=0),
+    's1': posterior_s1_sampled.mean(axis=0),
+    'a1': posterior_a1_sampled.mean(axis=0),
+    's2': posterior_s2_sampled.mean(axis=0),
+    'a2': posterior_a2_sampled.mean(axis=0),
+    's3': posterior_s3_sampled.mean(axis=0)
+}
+
+# Calculate joint distributions
+joint_exact = np.outer(exact_posteriors['a0'], np.outer(exact_posteriors['s1'], np.outer(exact_posteriors['a1'], np.outer(exact_posteriors['s2'], np.outer(exact_posteriors['a2'], exact_posteriors['s3'])))))
+joint_sampled = np.outer(sampled_posteriors['a0'], np.outer(sampled_posteriors['s1'], np.outer(sampled_posteriors['a1'], np.outer(sampled_posteriors['s2'], np.outer(sampled_posteriors['a2'], sampled_posteriors['s3'])))))
+
+
+# KL divergence between exact and sampled joint distributions
+kl_div_joint = kl_divergence(joint_exact.flatten(), joint_sampled.flatten())
+print(f"KL divergence between exact and sampled joint distributions: {kl_div_joint}")
+
+
+# Calculate KL divergences and mean squared errors
+kl_divs = [kl_divergence(np.array(exact_posteriors[var]), np.array(sampled_posteriors[var])) for var in exact_posteriors]
+kl_div_avg = np.mean(kl_divs)
+print(f"Average KL divergence: {kl_div_avg}")
+
+
+
+
+
+""" # Plot results of exact and sampled posteriors
+fig, axs = plt.subplots(3, 3, figsize=(15, 15))
+axs = axs.flatten()
+
+for i, var in enumerate(exact_posteriors):
+    exact = np.array(exact_posteriors[var])
+    sampled = np.array(sampled_posteriors[var])
+    x = np.arange(len(exact))
+    width = 0.35  # the width of the bars
+
+    axs[i].bar(x - width/2, exact, width, label='Exact', alpha=0.5)
+    axs[i].bar(x + width/2, sampled, width, label='Sampled', alpha=0.5)
+    axs[i].set_title(f"Posterior for {var}")
+    axs[i].set_xticks(x)
+    axs[i].legend()
+
+# Plot KL divergences
+fig, ax = plt.subplots(figsize=(10, 5))
+x = np.arange(len(exact_posteriors))
+ax.bar(x, kl_divs, alpha=0.7)
+ax.set_xticks(x)
+ax.set_xticklabels(exact_posteriors.keys())
+ax.set_ylabel('KL Divergence')
+ax.set_title('KL Divergence for Each Variable')
+plt.show()
+
+plt.tight_layout()
+plt.show() """

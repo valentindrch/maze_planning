@@ -8,6 +8,8 @@ p_B__A = np.array([[.3, .8],
 p_C__B = np.array([[.1, .5],
                    [.9, .5]])  # p(C | B)
 
+
+
 #### Belief propagation / message passing p(A, B | C=0)
 # Forward meassage (prior)
 A_fwd = p_A.copy()
@@ -64,10 +66,12 @@ while not converged:
         if diff_p < convergence_threshold:  # convergence threshold parameter can be adjusted
             converged = True
 
+
 print(f'True posterior over A: {posterior_A}')
 print(f'Sampled posterior over A: {posterior_A_sampled[-1, :]}')
 print(f'True posterior over B: {posterior_B}')
 print(f'Sampled posterior over B: {posterior_B_sampled[-1, :]}')
+print(f'True posterior over C: {posterior_C}')
 print(f'Number of samples: {posterior_A_sampled.shape[0]}')
 
 a = 1
