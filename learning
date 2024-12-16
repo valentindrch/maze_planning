@@ -31,7 +31,7 @@ model = BayesianNetwork([
     ('s1', 'a1'),
     ('s1', 's2'),
     ('a1', 's2'),
-    #('s2', 'a2'),
+    ('s2', 'a2'),
     ('s2', 's3'),
     ('a2', 's3'),
     ('s3', 'o3')
@@ -39,7 +39,7 @@ model = BayesianNetwork([
 
 alpha_a0 = Dirichlet(shape=(2, 1))  # Dirichlet prior for a0
 alpha_a1 = Dirichlet(shape=(2, 2))  # Dirichlet prior for a1
-alpha_a2 = Dirichlet(shape=(2, 1))  # Dirichlet prior for a2
+alpha_a2 = Dirichlet(shape=(2, 4))  # Dirichlet prior for a2
 
 # P(a0)
 cpd_a0 = TabularCPD('a0', 2, alpha_a0.get_MAP_cpd())
@@ -81,8 +81,8 @@ cpd_s2_given_s1_a1 = TabularCPD(
 
 # P(a2 | s2)
 cpd_a2_given_s2 = TabularCPD('a2', 2,
-                            #['s2'],
-                            #[2],
+                            ['s2'],
+                            [4],
                             alpha_a2.get_MAP_cpd())
 
 # P(s3 | s2, a2) with 8 states in s3
@@ -121,12 +121,12 @@ model.add_cpds(cpd_a0, cpd_s1_given_a0, cpd_a1_given_s1, cpd_s2_given_s1_a1, cpd
 inference = BeliefPropagation(model)
 posterior_a0 = inference.query(['a0'], evidence={'o3': 0})  # we always observe B=0 (like "reward")
 posterior_a1 = inference.query(['a1', 's1'], evidence={'o3': 0})
-posterior_a2 = inference.query(['a2'], evidence={'o3': 0})
+posterior_a2 = inference.query(['a2', 's2'], evidence={'o3': 0})
 
 # Infer hyperprior P(a0), P(a1|s1), P(a2|s2) based on the posteriors
-alpha_a0.infer(posterior_a0.values.reshape(2, 1))
+alpha_a0.infer(posterior_a0.values)
 alpha_a1.infer(posterior_a1.values)
-alpha_a2.infer(posterior_a2.values.reshape(2, 1))
+alpha_a2.infer(posterior_a2.values)
 
 
 cpd_a0 = TabularCPD('a0', 2, alpha_a0.get_MAP_cpd())
@@ -137,7 +137,10 @@ cpd_a1_given_s1 = TabularCPD(
     evidence_card=[2],
     values=alpha_a1.get_MAP_cpd()
 )
-cpd_a2_given_s2 = TabularCPD('a2', 2, alpha_a2.get_MAP_cpd())
+cpd_a2_given_s2 = TabularCPD('a2', 2, 
+                             ['s2'],
+                             [4],
+                             alpha_a2.get_MAP_cpd())
 
 model.add_cpds(cpd_a0, cpd_a1_given_s1, cpd_a2_given_s2)  # new, learned prior over A based on previous inference 
 print(f'Hyperparameters: {alpha_a0.params}')
