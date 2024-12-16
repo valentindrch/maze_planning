@@ -1,0 +1,141 @@
+from pgmpy.models import BayesianNetwork
+from pgmpy.factors.discrete import TabularCPD
+from pgmpy.inference import BeliefPropagation
+import pandas as pd
+import numpy as np
+
+# Define Dirichlet distribution
+class Dirichlet():
+
+    def __init__(self, shape=None, params=None):
+        if params is None:
+            self.params = np.ones(shape)  # for simplicity we start with all parameters set to 1 (uniform)
+        else:
+            self.params = params
+
+    def infer(self, observations):
+        if self.params.shape != observations.shape:  # in case of multiple observations
+            self.params += observations.sum(axis=0)
+        else:
+            self.params += observations  # this is the very basic update function to get the posterior
+
+    def get_MAP_cpd(self):
+        return self.params / self.params.sum(axis=0)  # it's also very simple to get a point estimate for the prior over A
+
+    def get_full_cpd(self):  # the MAP (point estimate) is a simplification. When considering the full distribution it gets more complicated...
+        pass
+
+# Create network structure
+model = BayesianNetwork([
+    ('a0', 's1'),
+    #('s1', 'a1'),
+    ('s1', 's2'),
+    ('a1', 's2'),
+    #('s2', 'a2'),
+    ('s2', 's3'),
+    ('a2', 's3'),
+    ('s3', 'o3')
+])
+
+alpha_a0 = Dirichlet(shape=(2, 1))  # Dirichlet prior for a0
+alpha_a1 = Dirichlet(shape=(2, 1))  # Dirichlet prior for a1
+alpha_a2 = Dirichlet(shape=(2, 1))  # Dirichlet prior for a2
+
+# P(a0)
+cpd_a0 = TabularCPD('a0', 2, alpha_a0.get_MAP_cpd())
+
+# P(s1 | a0)
+cpd_s1_given_a0 = TabularCPD(
+    variable='s1',
+    variable_card=2,
+    evidence=['a0'],
+    evidence_card=[2],
+    values=[
+        [0.99, 0.01],  
+        [0.01, 0.99]   
+    ]
+)
+
+# P(a1 | s1)
+cpd_a1_given_s1 = TabularCPD('a1', 2, 
+                             #['s1'], 
+                             #evidence_card=[2], 
+                             values=alpha_a1.get_MAP_cpd())
+
+# P(s2 | s1, a1)
+cpd_s2_given_s1_a1 = TabularCPD(
+    variable='s2',
+    variable_card=4,
+    evidence=['s1', 'a1'],
+    evidence_card=[2, 2],
+    values=[
+        [0.99, 0.01, 0.0, 0.0],  
+        [0.01, 0.99, 0.0, 0.0],  
+        [0.0, 0.0, 0.99, 0.01],  
+        [0.0, 0.0, 0.01, 0.99]   
+    ]
+)
+
+# P(a2 | s2)
+cpd_a2_given_s2 = TabularCPD('a2', 2,
+                            #['s2'],
+                            #[2],
+                            alpha_a2.get_MAP_cpd())
+
+# P(s3 | s2, a2) with 8 states in s3
+cpd_s3_given_s2_a2 = TabularCPD(
+    variable='s3',
+    variable_card=8,
+    evidence=['s2', 'a2'],
+    evidence_card=[4, 2],
+    values=[
+        [0.99, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  
+        [0.01, 0.99, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  
+        [0.0, 0.0, 0.99, 0.01, 0.0, 0.0, 0.0, 0.0],  
+        [0.0, 0.0, 0.01, 0.99, 0.0, 0.0, 0.0, 0.0],  
+        [0.0, 0.0, 0.0, 0.0, 0.99, 0.01, 0.0, 0.0],  
+        [0.0, 0.0, 0.0, 0.0, 0.01, 0.99, 0.0, 0.0],  
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.99, 0.01],  
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.99]   
+    ]
+)
+
+# P(o3 | s3)
+cpd_o3_given_s3 = TabularCPD(
+    variable='o3',
+    variable_card=2,
+    evidence=['s3'],
+    evidence_card=[8],
+    values = [[1.38567717e-03, 1.72536861e-04, 1.11286436e-02, 7.17798546e-01, 8.93763065e-02, 8.93763065e-02, 1.38567717e-03, 8.93763065e-02],
+              [9.98614323e-01, 9.99827463e-01, 9.88871356e-01, 2.82201454e-01, 9.10623694e-01, 9.10623694e-01, 9.98614323e-01, 9.10623694e-01]
+    ]
+)
+
+
+model.add_cpds(cpd_a0, cpd_s1_given_a0, cpd_a1_given_s1, cpd_s2_given_s1_a1, cpd_a2_given_s2, cpd_s3_given_s2_a2, cpd_o3_given_s3)
+
+# Infer posteriors P(a0 | o3=0), P(a1 | o3=0), P(a2 | o3=0)
+inference = BeliefPropagation(model)
+posterior_a0 = inference.query(['a0'], evidence={'o3': 0})  # we always observe B=0 (like "reward")
+posterior_a1 = inference.query(['a1'], evidence={'o3': 0})
+posterior_a2 = inference.query(['a2'], evidence={'o3': 0})
+
+# Infer hyperprior P(a0), P(a1|s1), P(a2|s2) based on the posteriors
+alpha_a0.infer(posterior_a0.values.reshape(2, 1))
+alpha_a1.infer(posterior_a1.values.reshape(2, 1))
+alpha_a2.infer(posterior_a2.values.reshape(2, 1))
+
+
+cpd_a0 = TabularCPD('a0', 2, alpha_a0.get_MAP_cpd())
+cpd_a1_given_s1 = TabularCPD('a1', 2, alpha_a1.get_MAP_cpd())
+cpd_a2_given_s2 = TabularCPD('a2', 2, alpha_a2.get_MAP_cpd())
+
+model.add_cpds(cpd_a0, cpd_a1_given_s1, cpd_a2_given_s2)  # new, learned prior over A based on previous inference 
+print(f'Hyperparameters: {alpha_a0.params}')
+print(f'New prior over a0: {alpha_a0.get_MAP_cpd()}')
+print("")
+print(f'Hyperparameters: {alpha_a1.params}')
+print(f'New prior over a1: {alpha_a1.get_MAP_cpd()}')
+print("")
+print(f'Hyperparameters: {alpha_a2.params}')
+print(f'New prior over a2: {alpha_a2.get_MAP_cpd()}')
