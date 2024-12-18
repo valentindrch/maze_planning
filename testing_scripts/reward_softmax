@@ -1,12 +1,13 @@
 import numpy as np
 
-vector_1 = np.array([3.0, 3.0])
+""" vector_1 = np.array([3.0, 3.0])
 vector_2 = np.array([5.0, 7.0, 5.0, 4.0])
-vector_3 = np.array([8.0, 8.0, 8.0, 10.0, 8.0, 7.0, 6.0, 7.0])
+vector_3 = np.array([8.0, 8.0, 8.0, 10.0, 8.0, 7.0, 6.0, 7.0]) """
+
+vector = np.array([9.0, 9.0, 11.0, 13.0, 8.0, 10.0, 6.0, 3.0])
 
 def softmax(vector, temperature=1.0):
     return np.exp(vector/temperature) / np.sum(np.exp(vector/temperature), axis=0)
-
 
 def find_perfect_temperature(vector):
     temperature = 0.1
@@ -15,13 +16,9 @@ def find_perfect_temperature(vector):
         if 0.68 < result.max() < 0.72:
             return temperature
         temperature += 0.02
+ 
+soft_vector = softmax(vector)
+complement = 1 - soft_vector	
+reward_dist = np.array([soft_vector, complement])
 
-
-
-print(softmax(vector_1, find_perfect_temperature(vector_3)))
-
-print(softmax(vector_2, find_perfect_temperature(vector_3)))
-
-print(find_perfect_temperature(vector_3))
-
-print(softmax(vector_3, find_perfect_temperature(vector_3)))
+print(find_perfect_temperature(vector))
