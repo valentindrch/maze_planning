@@ -3,6 +3,8 @@ import pickle
 import numpy as np
 import json
 
+
+
 def load_reward_data(folder_path):
     reward_data = {}
     for filename in os.listdir(folder_path):
@@ -17,10 +19,10 @@ def load_reward_data(folder_path):
                 print(f"Failed to load file: {file_path}, error: {e}")
     return reward_data
 
-def softmax(vector, temperature=1.0):
+def softmax(vector, temperature=0.7):
     return np.exp(vector/temperature) / np.sum(np.exp(vector/temperature), axis=0)
 
-def reward_processing(subject_key):
+def reward_processing(key):
     folder_path = r'C:\Users\valen\OneDrive\Dokumente\7Semester\Bachelorarbeit\maze_planning\reward_data'
     reward_data = load_reward_data(folder_path)
 
@@ -52,10 +54,11 @@ def reward_processing(subject_key):
         # Store the processed trials for the current subject
         reward_distributions[subject_key] = processed_trials
 
-    if subject_key in reward_distributions:
-        return reward_distributions[subject_key]
+
+    if key in reward_distributions:
+        return reward_distributions[key]
     else:
-        print(f"Subject key '{subject_key}' not found in reward data")
+        print(f"Subject key '{key}' not found in reward data")
         return None
 
 
@@ -73,4 +76,18 @@ for subject_key, subject_data in reward_data.items():
     reward_distributions[subject_key] = np.array([
         np.concatenate([[softmax(trial)], [1 - softmax(trial)]]) for trial in sums
     ])
+ """
+
+""" # Determine Habitual Path of a Participant
+def habitual_path(data):
+    for i in range(len(data)):
+        if data[i]['extra_elements'][0] == 0:
+            return data[i]['extra_elements'][1]
+        else:
+            pass
+
+# List the habitual paths of all participants
+def all_habitual_paths(reward_data):
+    # List the subject key and its habitual path
+    return {subject_key: habitual_path(data) for subject_key, data in reward_data.items()}
  """
