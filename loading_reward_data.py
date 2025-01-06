@@ -22,7 +22,7 @@ def load_reward_data(folder_path):
 def softmax(vector, temperature=0.7):
     return np.exp(vector/temperature) / np.sum(np.exp(vector/temperature), axis=0)
 
-def reward_processing(key):
+def reward_processing():
     folder_path = r'C:\Users\valen\OneDrive\Dokumente\7Semester\Bachelorarbeit\maze_planning\reward_data'
     reward_data = load_reward_data(folder_path)
 
@@ -54,12 +54,12 @@ def reward_processing(key):
         # Store the processed trials for the current subject
         reward_distributions[subject_key] = processed_trials
 
-
-    if key in reward_distributions:
+    return reward_distributions
+    """ if key in reward_distributions:
         return reward_distributions[key]
     else:
         print(f"Subject key '{key}' not found in reward data")
-        return None
+        return None """
 
 
 """ # Generalized processing for all keys in reward_data
