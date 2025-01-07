@@ -49,6 +49,9 @@ def trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_o3):
     posterior_a1 = inference.query(['a1', 's1'], evidence={'o3': 0})
     posterior_a2 = inference.query(['a2', 's2'], evidence={'o3': 0})
 
+    # Used for prediction
+    posterior_s3 = inference.query(['s3'], evidence={'o3': 0})
+
     # Infer hyperprior P(a0), P(a1|s1), P(a2|s2) based on the posteriors
     alpha_a0.infer(posterior_a0.values.reshape(2, 1))
     alpha_a1.infer(posterior_a1.values.reshape(2, 2))
@@ -70,6 +73,8 @@ def trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_o3):
 
     model.add_cpds(cpd_a0, cpd_a1_given_s1, cpd_a2_given_s2)
 
+    return posterior_s3
+
 
 # MAP prediction function
 def map_prediction(model):
@@ -77,8 +82,8 @@ def map_prediction(model):
     posterior_s3 = inference.query(['s3'], evidence={'o3': 0})
     return posterior_s3
 
-# For the data of one participant, the model learns 
-# Furthermore, for each trial, the probability of choosing the optimal path is predicted and stored
+# Initialization of the model
+# Learning and evaluation (prediction) of the model
 def evaluate_model(reward_o3):
     # Create network structure
     model = BayesianNetwork([
@@ -167,7 +172,7 @@ def evaluate_model(reward_o3):
 
 
     # ----------------------------------------------------------------------------------------------------------------------
-    # Learning and Evaluation
+    # Iteration and Evaluation
     # ----------------------------------------------------------------------------------------------------------------------
 
     # Determine the habitual path of the participant
@@ -177,19 +182,19 @@ def evaluate_model(reward_o3):
             habitual_path = reward_o3[i]['extra_elements'][1]
             break
 
-    # Iterate over trials to learn the hyperpriors
-    # Extract the reward data from the trials
+    # Initialize arrays to store the predicted probabilities of the optimal path for each distance to the habitual path
     distance_0 = np.array([])
     distance_1 = np.array([])
     distance_2 = np.array([])
     distance_3 = np.array([])
 
     for i in range(len(reward_o3)):
-        trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_o3[i]['distribution'])
+         # Let the model learn from the reward of trial i
+        reward_trial = reward_o3[i]['distribution']
+        prediction = trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_trial)
 
         # Save the predicted probability of the optimal path at trial i
         optimal_path = reward_o3[i]['extra_elements'][1]
-        prediction = map_prediction(model)
         prob_optimal_path = prediction.values[optimal_path]
 
         # Sort the predicted probabilities of the optimal path based on the distance to the habitual path 
@@ -205,6 +210,7 @@ def evaluate_model(reward_o3):
         if reward_o3[i]['extra_elements'][0] == 3:
             distance_3 = np.append(distance_3, prob_optimal_path)
 
+        
     return habitual_path, distance_0, distance_1, distance_2, distance_3
         
 
@@ -221,8 +227,8 @@ all_probs_3 = np.array([])
 
 # Iterate over all participants to evaluate the model
 for key in rewards.keys():
-    reward_o3 = rewards[key]
-    habitual_path, temp_0, temp_1, temp_2, temp_3 = evaluate_model(reward_o3)
+    rewards_participant = rewards[key]
+    habitual_path, temp_0, temp_1, temp_2, temp_3 = evaluate_model(rewards_participant)
     print(habitual_path)
     all_probs_0 = np.append(all_probs_0, temp_0)
     all_probs_1 = np.append(all_probs_1, temp_1)
