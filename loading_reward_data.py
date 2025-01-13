@@ -19,11 +19,11 @@ def load_reward_data(folder_path):
                 print(f"Failed to load file: {file_path}, error: {e}")
     return reward_data
 
-def softmax(vector, temperature=0.7):
+def softmax(vector, temperature=1.):
     return np.exp(vector/temperature) / np.sum(np.exp(vector/temperature), axis=0)
 
 def reward_processing():
-    folder_path = r'C:\Users\valen\OneDrive\Dokumente\7Semester\Bachelorarbeit\maze_planning\reward_data'
+    folder_path = r'/Users/max/Documents/PhD/P2 sequential decision task/Valentin/maze_planning/reward_data'
     reward_data = load_reward_data(folder_path)
 
     # Generalized processing for all keys in reward_data

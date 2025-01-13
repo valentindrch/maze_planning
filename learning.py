@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from loading_reward_data import reward_processing
 import logging
+import pickle
 
 # Suppress warnings from pgmpy
 logging.getLogger("pgmpy").setLevel(logging.ERROR)
@@ -44,18 +45,19 @@ def trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_o3):
     model.add_cpds(cpd_o3_given_s3)
 
     # Infer posteriors P(a0 | o3=0), P(a1 | o3=0), P(a2 | o3=0)
+    nodes = [node for node in model.nodes if node != 'o3']
     inference = BeliefPropagation(model)
-    posterior_a0 = inference.query(['a0'], evidence={'o3': 0})  # we always observe B=0 (like "reward")
-    posterior_a1 = inference.query(['a1', 's1'], evidence={'o3': 0})
-    posterior_a2 = inference.query(['a2', 's2'], evidence={'o3': 0})
-
-    # Used for prediction
-    posterior_s3 = inference.query(['s3'], evidence={'o3': 0})
+    prior = inference.query(nodes).values
+    posterior = inference.query(nodes, evidence={'o3': 0}).values  # might be a bit more efficient to only call `query` once
+    posterior_a0 = posterior.sum(axis=tuple(range(1, 6)))  # 'a0'
+    posterior_a1 = posterior.sum(axis=(0, 3, 4, 5)).T  # sorry, making this way harder to read (['a1', 's1'])
+    posterior_a2 = posterior.sum(axis=(0, 1, 2, 5)).T  # ['a2', 's2']
+    posterior_s3 = posterior.sum(axis=tuple(range(0, 5)))  # 's3'
 
     # Infer hyperprior P(a0), P(a1|s1), P(a2|s2) based on the posteriors
-    alpha_a0.infer(posterior_a0.values.reshape(2, 1))
-    alpha_a1.infer(posterior_a1.values.reshape(2, 2))
-    alpha_a2.infer(posterior_a2.values.reshape(2, 4))
+    alpha_a0.infer(posterior_a0.reshape(2, 1))
+    alpha_a1.infer(posterior_a1.reshape(2, 2))
+    alpha_a2.infer(posterior_a2.reshape(2, 4))
 
     cpd_a0 = TabularCPD('a0', 2, alpha_a0.get_MAP_cpd())
     cpd_a1_given_s1 = TabularCPD(
@@ -73,7 +75,7 @@ def trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_o3):
 
     model.add_cpds(cpd_a0, cpd_a1_given_s1, cpd_a2_given_s2)
 
-    return posterior_s3
+    return prior, posterior_s3
 
 
 # MAP prediction function
@@ -97,7 +99,7 @@ def evaluate_model(reward_o3):
         ('s3', 'o3')
     ])
 
-    param = 2.0
+    param = 3.0
     # Initialize the Dirichlet priors
     alpha_a0 = Dirichlet(shape=(2, 1), params=np.array([[param], [param]]))  # Dirichlet prior for a0
     alpha_a1 = Dirichlet(shape=(2, 2), params=np.array([[param, param], [param, param]]))  # Dirichlet prior for a1
@@ -188,14 +190,21 @@ def evaluate_model(reward_o3):
     distance_2 = np.array([])
     distance_3 = np.array([])
 
+    priors = []
+
     for i in range(len(reward_o3)):
+
+        if i == 60:
+            a = 1
+
          # Let the model learn from the reward of trial i
         reward_trial = reward_o3[i]['distribution']
-        prediction = trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_trial)
+        prior, posterior_s3 = trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_trial)
+        priors.append(prior)
 
         # Save the predicted probability of the optimal path at trial i
         optimal_path = reward_o3[i]['extra_elements'][1]
-        prob_optimal_path = prediction.values[optimal_path]
+        prob_optimal_path = posterior_s3[optimal_path]
 
         # Sort the predicted probabilities of the optimal path based on the distance to the habitual path 
         if reward_o3[i]['extra_elements'][0] == 0 and i > 85:
@@ -211,7 +220,7 @@ def evaluate_model(reward_o3):
             distance_3 = np.append(distance_3, prob_optimal_path)
 
         
-    return habitual_path, distance_0, distance_1, distance_2, distance_3
+    return np.array(priors), habitual_path, distance_0, distance_1, distance_2, distance_3
         
 
 # Load the reward data of all participants
@@ -228,13 +237,15 @@ all_probs_3 = np.array([])
 # Iterate over all participants to evaluate the model
 for key in rewards.keys():
     rewards_participant = rewards[key]
-    habitual_path, temp_0, temp_1, temp_2, temp_3 = evaluate_model(rewards_participant)
+    priors, habitual_path, temp_0, temp_1, temp_2, temp_3 = evaluate_model(rewards_participant)
     print(habitual_path)
     all_probs_0 = np.append(all_probs_0, temp_0)
     all_probs_1 = np.append(all_probs_1, temp_1)
     all_probs_2 = np.append(all_probs_2, temp_2)
     all_probs_3 = np.append(all_probs_3, temp_3)
 
+with open('priors.pkl', 'wb') as f:
+    pickle.dump(priors, f)
 
 # Calculate the mean probability of choosing the optimal path for each distance to the habitual path
 prob_distance_0 = np.mean(all_probs_0)
@@ -272,3 +283,5 @@ plt.title('Probability of Choosing Optimal Path Based on Distance to Habitual Pa
 plt.legend()
 plt.grid(True)
 plt.show()
+
+a = 1
