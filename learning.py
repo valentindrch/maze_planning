@@ -6,6 +6,7 @@ import numpy as np
 from loading_reward_data import reward_processing
 import logging
 import pickle
+from scipy.stats import entropy
 
 # Suppress warnings from pgmpy
 logging.getLogger("pgmpy").setLevel(logging.ERROR)
@@ -75,7 +76,7 @@ def trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_o3):
 
     model.add_cpds(cpd_a0, cpd_a1_given_s1, cpd_a2_given_s2)
 
-    return prior, posterior_s3
+    return prior, posterior, posterior_s3
 
 
 # MAP prediction function
@@ -191,6 +192,7 @@ def evaluate_model(reward_o3):
     distance_3 = np.array([])
 
     priors = []
+    it_measures = {'complexity': [], 'error': [], 'surprise': []}
 
     for i in range(len(reward_o3)):
 
@@ -199,8 +201,15 @@ def evaluate_model(reward_o3):
 
          # Let the model learn from the reward of trial i
         reward_trial = reward_o3[i]['distribution']
-        prior, posterior_s3 = trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_trial)
+        prior, posterior, posterior_s3 = trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_trial)
         priors.append(prior)
+
+        # Calculate IT metrics
+        complexity = entropy(posterior.flatten(), prior.flatten())
+        error = entropy(posterior_s3) + entropy(posterior_s3, model.get_cpds()[6].values[0, :])
+        it_measures['complexity'].append(complexity)
+        it_measures['error'].append(error)
+        it_measures['surprise'].append(complexity + error)
 
         # Save the predicted probability of the optimal path at trial i
         optimal_path = reward_o3[i]['extra_elements'][1]
@@ -220,7 +229,7 @@ def evaluate_model(reward_o3):
             distance_3 = np.append(distance_3, prob_optimal_path)
 
         
-    return np.array(priors), habitual_path, distance_0, distance_1, distance_2, distance_3
+    return np.array(priors), habitual_path, distance_0, distance_1, distance_2, distance_3, it_measures
         
 
 # Load the reward data of all participants
@@ -237,7 +246,7 @@ all_probs_3 = np.array([])
 # Iterate over all participants to evaluate the model
 for key in rewards.keys():
     rewards_participant = rewards[key]
-    priors, habitual_path, temp_0, temp_1, temp_2, temp_3 = evaluate_model(rewards_participant)
+    priors, habitual_path, temp_0, temp_1, temp_2, temp_3, it_measures = evaluate_model(rewards_participant)
     print(habitual_path)
     all_probs_0 = np.append(all_probs_0, temp_0)
     all_probs_1 = np.append(all_probs_1, temp_1)
@@ -246,6 +255,9 @@ for key in rewards.keys():
 
 with open('priors.pkl', 'wb') as f:
     pickle.dump(priors, f)
+
+with open('it_measures.pkl', 'wb') as f:
+    pickle.dump(it_measures, f)
 
 # Calculate the mean probability of choosing the optimal path for each distance to the habitual path
 prob_distance_0 = np.mean(all_probs_0)
