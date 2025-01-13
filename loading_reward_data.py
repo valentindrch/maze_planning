@@ -19,8 +19,16 @@ def load_reward_data(folder_path):
                 print(f"Failed to load file: {file_path}, error: {e}")
     return reward_data
 
-def softmax(vector, temperature=0.7):
+def softmax(vector, temperature=1.0):
     return np.exp(vector/temperature) / np.sum(np.exp(vector/temperature), axis=0)
+
+# Replaces the softmax function with a function which gives the optimal path .99 and all the other .01
+def one_hot_encoding(vector):
+    optimal_path = np.argmax(vector)
+    softmax_values = np.zeros(len(vector))
+    softmax_values[optimal_path] = 0.99
+    softmax_values[softmax_values == 0] = 0.01
+    return softmax_values
 
 def reward_processing():
     folder_path = r'C:\Users\valen\OneDrive\Dokumente\7Semester\Bachelorarbeit\maze_planning\reward_data'
@@ -40,12 +48,13 @@ def reward_processing():
             row_sums = np.sum(trial_array, axis=1)
             
             # Compute softmax and its complement
-            softmax_values = softmax(row_sums)
-            complement_values = 1 - softmax_values
+            encoded_values = one_hot_encoding(row_sums)
+            # encoded_values = softmax(row_sums)
+            complement_values = 1 - encoded_values
             
             # Combine softmax values and complements, keeping the extra elements
             processed_trial = {
-                "distribution": np.stack([softmax_values, complement_values]),
+                "distribution": np.stack([encoded_values, complement_values]),
                 "extra_elements": extra_elements
             }
             
@@ -91,3 +100,4 @@ def all_habitual_paths(reward_data):
     # List the subject key and its habitual path
     return {subject_key: habitual_path(data) for subject_key, data in reward_data.items()}
  """
+

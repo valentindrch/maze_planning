@@ -9,7 +9,6 @@ import logging
 # Suppress warnings from pgmpy
 logging.getLogger("pgmpy").setLevel(logging.ERROR)
 
-
 # Define Dirichlet distribution
 class Dirichlet():
 
@@ -31,6 +30,7 @@ class Dirichlet():
     def get_full_cpd(self):  # the MAP (point estimate) is a simplification. When considering the full distribution it gets more complicated...
         pass
 
+
 def trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_o3):
     # P(o3 | s3)
     cpd_o3_given_s3 = TabularCPD(
@@ -43,20 +43,26 @@ def trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_o3):
     
     model.add_cpds(cpd_o3_given_s3)
 
-    # Infer posteriors P(a0 | o3=0), P(a1 | o3=0), P(a2 | o3=0)
+    # Perform inference
     inference = BeliefPropagation(model)
+
+    # Compute model priors for all states of s3; prior prediction of all paths
+    prior_s3 = inference.query(['s3'])
+
+    # Infer posteriors P(a0 | o3=0), P(a1 | o3=0), P(a2 | o3=0)
     posterior_a0 = inference.query(['a0'], evidence={'o3': 0})  # we always observe B=0 (like "reward")
     posterior_a1 = inference.query(['a1', 's1'], evidence={'o3': 0})
     posterior_a2 = inference.query(['a2', 's2'], evidence={'o3': 0})
 
-    # Used for prediction
+    # Compute model posteriors for all states of s3; posterior prediction of all paths
     posterior_s3 = inference.query(['s3'], evidence={'o3': 0})
 
-    # Infer hyperprior P(a0), P(a1|s1), P(a2|s2) based on the posteriors
+    # Infer hyperprior P(a0), P(a1|s1), P(a2|s2) based on the posteriors; update the Dirichlet priors
     alpha_a0.infer(posterior_a0.values.reshape(2, 1))
     alpha_a1.infer(posterior_a1.values.reshape(2, 2))
     alpha_a2.infer(posterior_a2.values.reshape(2, 4))
 
+    # Update the CPDs of the model
     cpd_a0 = TabularCPD('a0', 2, alpha_a0.get_MAP_cpd())
     cpd_a1_given_s1 = TabularCPD(
         variable='a1',
@@ -73,18 +79,11 @@ def trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_o3):
 
     model.add_cpds(cpd_a0, cpd_a1_given_s1, cpd_a2_given_s2)
 
-    return posterior_s3
-
-
-# MAP prediction function
-def map_prediction(model):
-    inference = BeliefPropagation(model)
-    posterior_s3 = inference.query(['s3'], evidence={'o3': 0})
-    return posterior_s3
+    return prior_s3, posterior_s3
 
 # Initialization of the model
 # Learning and evaluation (prediction) of the model
-def evaluate_model(reward_o3):
+def evaluate_model(rewards_participant):
     # Create network structure
     model = BayesianNetwork([
         ('a0', 's1'),
@@ -97,7 +96,7 @@ def evaluate_model(reward_o3):
         ('s3', 'o3')
     ])
 
-    param = 2.0
+    param = 0.5
     # Initialize the Dirichlet priors
     alpha_a0 = Dirichlet(shape=(2, 1), params=np.array([[param], [param]]))  # Dirichlet prior for a0
     alpha_a1 = Dirichlet(shape=(2, 2), params=np.array([[param, param], [param, param]]))  # Dirichlet prior for a1
@@ -170,6 +169,16 @@ def evaluate_model(reward_o3):
 
     model.add_cpds(cpd_a0, cpd_s1_given_a0, cpd_a1_given_s1, cpd_s2_given_s1_a1, cpd_a2_given_s2, cpd_s3_given_s2_a2)
 
+    # P(o3 | s3)
+    cpd_o3_given_s3 = TabularCPD(
+        variable='o3',
+        variable_card=2,
+        evidence=['s3'],
+        evidence_card=[8],
+        values = rewards_participant[0]['distribution']
+    )
+    
+    model.add_cpds(cpd_o3_given_s3)
 
     # ----------------------------------------------------------------------------------------------------------------------
     # Iteration and Evaluation
@@ -177,93 +186,174 @@ def evaluate_model(reward_o3):
 
     # Determine the habitual path of the participant
     habitual_path = None
-    for i in range(len(reward_o3)):
-        if reward_o3[i]['extra_elements'][0] == 0:
-            habitual_path = reward_o3[i]['extra_elements'][1]
+    for i in range(len(rewards_participant)):
+        if rewards_participant[i]['extra_elements'][0] == 0:
+            habitual_path = rewards_participant[i]['extra_elements'][1]
             break
+    print(f'Habitual Path: {habitual_path} ')
 
     # Initialize arrays to store the predicted probabilities of the optimal path for each distance to the habitual path
-    distance_0 = np.array([])
-    distance_1 = np.array([])
-    distance_2 = np.array([])
-    distance_3 = np.array([])
+    post_dist_0 = np.array([])
+    post_dist_1 = np.array([])
+    post_dist_2 = np.array([])
+    post_dist_3 = np.array([])
 
-    for i in range(len(reward_o3)):
+    prior_dist_0 = np.array([])
+    prior_dist_1 = np.array([])
+    prior_dist_2 = np.array([])
+    prior_dist_3 = np.array([])
+
+    # Store counts of how often a path was the optimal path
+    counts = np.zeros(8)
+
+    for i in range(len(rewards_participant)):
+        # Optimal path of the trial:
+        optimal_path = rewards_participant[i]['extra_elements'][1]
+
+        counts[optimal_path] += 1
+
          # Let the model learn from the reward of trial i
-        reward_trial = reward_o3[i]['distribution']
-        prediction = trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_trial)
+        reward_trial = rewards_participant[i]['distribution']
+        prior_prediction, posterior_prediction = trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_trial)
 
-        # Save the predicted probability of the optimal path at trial i
-        optimal_path = reward_o3[i]['extra_elements'][1]
-        prob_optimal_path = prediction.values[optimal_path]
+        # Prior and Posterior model predictions for the optimal path
+        prior_optimal_path = prior_prediction.values[optimal_path]
+        post_optimal_path = posterior_prediction.values[optimal_path] 
+
+        if i % 20 == 0 or i == len(rewards_participant) - 1:
+            print(f'Trial {i + 1}:')
+            print(np.round(prior_prediction.values, 3), np.round(posterior_prediction.values, 3))
+            print("")
+
+
+        # Distance to the habitual path
+        dist = rewards_participant[i]['extra_elements'][0]
+
+        if post_optimal_path > 0.9 and dist == 3:
+            print(f'High probability for trial {i + 1} and distance 3: {post_optimal_path}')
+            print(f'Prior probability was: {prior_optimal_path}')
+            print(f'Optimal Path was: {optimal_path}')
+
+        """ if dist == 1:
+            print(f'Probability for trial {i + 1} and distance 1: {post_optimal_path}')
+            print(f'Prior probability was: {prior_optimal_path}')
+            print(f'Optimal Path was: {optimal_path}') """
 
         # Sort the predicted probabilities of the optimal path based on the distance to the habitual path 
-        if reward_o3[i]['extra_elements'][0] == 0 and i > 85:
-            distance_0 = np.append(distance_0, prob_optimal_path)
+        if dist == 0 and i > 85:
+            post_dist_0 = np.append(post_dist_0, post_optimal_path)
+            prior_dist_0 = np.append(prior_dist_0, prior_optimal_path)
 
-        if reward_o3[i]['extra_elements'][0] == 1:
-            distance_1 = np.append(distance_1, prob_optimal_path)
+        if dist == 1:
+            post_dist_1 = np.append(post_dist_1, post_optimal_path)
+            prior_dist_1 = np.append(prior_dist_1, prior_optimal_path)
 
-        if reward_o3[i]['extra_elements'][0] == 2:
-            distance_2 = np.append(distance_2, prob_optimal_path)
+        if dist == 2:
+            post_dist_2 = np.append(post_dist_2, post_optimal_path)
+            prior_dist_2 = np.append(prior_dist_2, prior_optimal_path)
 
-        if reward_o3[i]['extra_elements'][0] == 3:
-            distance_3 = np.append(distance_3, prob_optimal_path)
+        if dist == 3:
+            post_dist_3 = np.append(post_dist_3, post_optimal_path)
+            prior_dist_3 = np.append(prior_dist_3, prior_optimal_path)
 
+        # Speichere die Daten dieses Trials in der Liste
+        data.append({
+            'Trial': i + 1,
+            'Distance': dist,
+            'Optimal_Path': optimal_path,
+            'Prior_Optimal_Path': prior_optimal_path,
+            'Posterior_Optimal_Path': post_optimal_path
+        })
         
-    return habitual_path, distance_0, distance_1, distance_2, distance_3
+    return habitual_path, post_dist_0, post_dist_1, post_dist_2, post_dist_3, prior_dist_0, prior_dist_1, prior_dist_2, prior_dist_3, counts
         
+
+data = []
 
 # Load the reward data of all participants
 rewards = reward_processing() 
 # Only use the first participant for now
-rewards = {key: rewards[key] for key in list(rewards.keys())[:1]}
+rewards = {key: rewards[key] for key in list(rewards.keys())[3:4]}
 
 # Initialize arrays to store the probabilities of choosing the optimal path for each distance to the habitual path
-all_probs_0 = np.array([])
-all_probs_1 = np.array([])
-all_probs_2 = np.array([])
-all_probs_3 = np.array([])
+all_post_0 = np.array([])
+all_post_1 = np.array([])
+all_post_2 = np.array([])
+all_post_3 = np.array([])
+
+all_prior_0 = np.array([])
+all_prior_1 = np.array([])
+all_prior_2 = np.array([])
+all_prior_3 = np.array([])
 
 # Iterate over all participants to evaluate the model
 for key in rewards.keys():
+    print(f'---------------------------------------------------------------------------------------')
+    print(f'Participant: {key}')
     rewards_participant = rewards[key]
-    habitual_path, temp_0, temp_1, temp_2, temp_3 = evaluate_model(rewards_participant)
-    print(habitual_path)
-    all_probs_0 = np.append(all_probs_0, temp_0)
-    all_probs_1 = np.append(all_probs_1, temp_1)
-    all_probs_2 = np.append(all_probs_2, temp_2)
-    all_probs_3 = np.append(all_probs_3, temp_3)
+    habitual_path, post_dist_0, post_dist_1, post_dist_2, post_dist_3, prior_dist_0, prior_dist_1, prior_dist_2, prior_dist_3, counts = evaluate_model(rewards_participant)
+    
+    all_post_0 = np.append(all_post_0, post_dist_0)
+    all_post_1 = np.append(all_post_1, post_dist_1)
+    all_post_2 = np.append(all_post_2, post_dist_2)
+    all_post_3 = np.append(all_post_3, post_dist_3)
 
+    all_prior_0 = np.append(all_prior_0, prior_dist_0)
+    all_prior_1 = np.append(all_prior_1, prior_dist_1)
+    all_prior_2 = np.append(all_prior_2, prior_dist_2)
+    all_prior_3 = np.append(all_prior_3, prior_dist_3)
+
+    print(f'Path was optimal path: {counts}')
 
 # Calculate the mean probability of choosing the optimal path for each distance to the habitual path
-prob_distance_0 = np.mean(all_probs_0)
-prob_distance_1 = np.mean(all_probs_1)
-prob_distance_2 = np.mean(all_probs_2)
-prob_distance_3 = np.mean(all_probs_3)
-print(f'Mean probability to choose the optimal path when distance to habitual path is 0: {prob_distance_0}')
-print(f'Mean probability to choose the optimal path when distance to habitual path is 1: {prob_distance_1}')
-print(f'Mean probability to choose the optimal path when distance to habitual path is 2: {prob_distance_2}')
-print(f'Mean probability to choose the optimal path when distance to habitual path is 3: {prob_distance_3}')
+mean_prediction_0 = np.mean(all_post_0)
+mean_prediction_1 = np.mean(all_post_1)
+mean_prediction_2 = np.mean(all_post_2)
+mean_prediction_3 = np.mean(all_post_3)
+print(f'Mean probability to choose the optimal path when distance to habitual path is 0: {mean_prediction_0}')
+print(f'Mean probability to choose the optimal path when distance to habitual path is 1: {mean_prediction_1}')
+print(f'Mean probability to choose the optimal path when distance to habitual path is 2: {mean_prediction_2}')
+print(f'Mean probability to choose the optimal path when distance to habitual path is 3: {mean_prediction_3}')
+
+# Calculate the mean prior probability of choosing the optimal path for each distance to the habitual path
+mean_prior_0 = np.mean(all_prior_0)
+mean_prior_1 = np.mean(all_prior_1)
+mean_prior_2 = np.mean(all_prior_2)
+mean_prior_3 = np.mean(all_prior_3)
+print(f'Mean prior probability to choose the optimal path when distance to habitual path is 0: {mean_prior_0}')
+print(f'Mean prior probability to choose the optimal path when distance to habitual path is 1: {mean_prior_1}')
+print(f'Mean prior probability to choose the optimal path when distance to habitual path is 2: {mean_prior_2}')
+print(f'Mean prior probability to choose the optimal path when distance to habitual path is 3: {mean_prior_3}')
 
 
-# Plot the probabilities of choosing the optimal path based on the distance to the habitual path
-# The individual data points should be shown
-# A line should be drawn connecting the mean probabilities for each distance
-# The x-axis should represent the distance to the habitual path
-# The y-axis should represent the probability of choosing the optimal path
+# Erstelle eine DataFrame aus den gesammelten Daten
+results_df = pd.DataFrame(data)
+
+# Exportiere die Tabelle in eine CSV-Datei
+results_df.to_csv('trial_results.csv', index=False)
+
+# Plotting the results
 import matplotlib.pyplot as plt
 # Plot the probabilities of choosing the optimal path based on the distance to the habitual path
 plt.figure(figsize=(10, 6))
 
 # Plot individual data points
-plt.scatter(np.zeros_like(all_probs_0), all_probs_0, color='blue', label='Distance 0', alpha=0.6)
-plt.scatter(np.ones_like(all_probs_1), all_probs_1, color='green', label='Distance 1', alpha=0.6)
-plt.scatter(np.full_like(all_probs_2, 2), all_probs_2, color='orange', label='Distance 2', alpha=0.6)
-plt.scatter(np.full_like(all_probs_3, 3), all_probs_3, color='red', label='Distance 3', alpha=0.6)
+plt.scatter(np.zeros_like(all_post_0), all_post_0, color='blue', label='Posterior', alpha=0.6)
+plt.scatter(np.ones_like(all_post_1), all_post_1, color='green', label='Posterior', alpha=0.6)
+plt.scatter(np.full_like(all_post_2, 2), all_post_2, color='orange', label='Posterior', alpha=0.6)
+plt.scatter(np.full_like(all_post_3, 3), all_post_3, color='red', label='Posterio', alpha=0.6)
+
+# Include Prior probabilities
+plt.scatter(np.zeros_like(all_prior_0), all_prior_0, color='blue', marker='x', label='Prior')
+plt.scatter(np.ones_like(all_prior_1), all_prior_1, color='green', marker='x', label='Prior')
+plt.scatter(np.full_like(all_prior_2, 2), all_prior_2, color='orange', marker='x', label='Prior')
+plt.scatter(np.full_like(all_prior_3, 3), all_prior_3, color='red', marker='x', label='Prior')
 
 # Plot mean probabilities
-plt.plot([0, 1, 2, 3], [prob_distance_0, prob_distance_1, prob_distance_2, prob_distance_3], color='black', marker='o', linestyle='-', linewidth=2, markersize=8, label='Mean Probability')
+plt.plot([0, 1, 2, 3], [mean_prediction_0, mean_prediction_1, mean_prediction_2, mean_prediction_3], color='black', marker='o', linestyle='-', linewidth=2, markersize=8, label='Mean Probability')
+
+# Plot mean prior probabilities
+plt.plot([0, 1, 2, 3], [mean_prior_0, mean_prior_1, mean_prior_2, mean_prior_3], color='black', marker='x', linestyle='--', linewidth=2, markersize=8, label='Mean Prior Probability')
 
 # Labels and title
 plt.xlabel('Distance to Habitual Path')
