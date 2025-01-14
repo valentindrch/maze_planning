@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from loading_reward_data import reward_processing
 import logging
+from scipy.stats import linregress
 
 # Suppress warnings from pgmpy
 logging.getLogger("pgmpy").setLevel(logging.ERROR)
@@ -83,7 +84,7 @@ def trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_o3):
 
 # Initialization of the model
 # Learning and evaluation (prediction) of the model
-def evaluate_model(rewards_participant):
+def evaluate_model(rewards_participant, param):
     # Create network structure
     model = BayesianNetwork([
         ('a0', 's1'),
@@ -96,7 +97,7 @@ def evaluate_model(rewards_participant):
         ('s3', 'o3')
     ])
 
-    param = 0.5
+    
     # Initialize the Dirichlet priors
     alpha_a0 = Dirichlet(shape=(2, 1), params=np.array([[param], [param]]))  # Dirichlet prior for a0
     alpha_a1 = Dirichlet(shape=(2, 2), params=np.array([[param, param], [param, param]]))  # Dirichlet prior for a1
@@ -190,7 +191,7 @@ def evaluate_model(rewards_participant):
         if rewards_participant[i]['extra_elements'][0] == 0:
             habitual_path = rewards_participant[i]['extra_elements'][1]
             break
-    print(f'Habitual Path: {habitual_path} ')
+    #print(f'Habitual Path: {habitual_path} ')
 
     # Initialize arrays to store the predicted probabilities of the optimal path for each distance to the habitual path
     post_dist_0 = np.array([])
@@ -220,24 +221,8 @@ def evaluate_model(rewards_participant):
         prior_optimal_path = prior_prediction.values[optimal_path]
         post_optimal_path = posterior_prediction.values[optimal_path] 
 
-        if i % 20 == 0 or i == len(rewards_participant) - 1:
-            print(f'Trial {i + 1}:')
-            print(np.round(prior_prediction.values, 3), np.round(posterior_prediction.values, 3))
-            print("")
-
-
         # Distance to the habitual path
         dist = rewards_participant[i]['extra_elements'][0]
-
-        if post_optimal_path > 0.9 and dist == 3:
-            print(f'High probability for trial {i + 1} and distance 3: {post_optimal_path}')
-            print(f'Prior probability was: {prior_optimal_path}')
-            print(f'Optimal Path was: {optimal_path}')
-
-        """ if dist == 1:
-            print(f'Probability for trial {i + 1} and distance 1: {post_optimal_path}')
-            print(f'Prior probability was: {prior_optimal_path}')
-            print(f'Optimal Path was: {optimal_path}') """
 
         # Sort the predicted probabilities of the optimal path based on the distance to the habitual path 
         if dist == 0 and i > 85:
@@ -256,7 +241,7 @@ def evaluate_model(rewards_participant):
             post_dist_3 = np.append(post_dist_3, post_optimal_path)
             prior_dist_3 = np.append(prior_dist_3, prior_optimal_path)
 
-        # Speichere die Daten dieses Trials in der Liste
+        """ # Speichere die Daten dieses Trials in der Liste
         data.append({
             'Trial': i + 1,
             'Distance': dist,
@@ -264,74 +249,143 @@ def evaluate_model(rewards_participant):
             'Prior_Optimal_Path': prior_optimal_path,
             'Posterior_Optimal_Path': post_optimal_path
         })
-        
+         """
     return habitual_path, post_dist_0, post_dist_1, post_dist_2, post_dist_3, prior_dist_0, prior_dist_1, prior_dist_2, prior_dist_3, counts
         
 
+""" data = []
+ """
+
+probabilities = [0.886]
+parameters = [12.0]
+distances = np.array([1, 2, 3, 4])
+
+# Initialize a matrix to store the results len(probabilities) x len(parameters)
+matrix = np.zeros((len(probabilities), len(parameters)))
+
+# Log diffs in csv file
 data = []
 
-# Load the reward data of all participants
-rewards = reward_processing() 
-# Only use the first participant for now
-rewards = {key: rewards[key] for key in list(rewards.keys())[3:4]}
+# Find regression line for the following four data points
+exp_data = np.array([0.7427441, 0.6653386, 0.4615385, 0.4559387])
+slope, intercept, r_value, p_value, std_err = linregress(distances, exp_data)
+regression_line_exp = slope * distances + intercept
 
-# Initialize arrays to store the probabilities of choosing the optimal path for each distance to the habitual path
-all_post_0 = np.array([])
-all_post_1 = np.array([])
-all_post_2 = np.array([])
-all_post_3 = np.array([])
+# Grid Search for the best parameters
+for probability in probabilities:
+    for parameter in parameters:
+        # Load the reward data of all participants
+        rewards = reward_processing(probability) 
+        # Only use the first participant for now
+        rewards = {key: rewards[key] for key in list(rewards.keys())[18:22]}
 
-all_prior_0 = np.array([])
-all_prior_1 = np.array([])
-all_prior_2 = np.array([])
-all_prior_3 = np.array([])
+        # Initialize arrays to store the probabilities of choosing the optimal path for each distance to the habitual path
+        all_post_0 = np.array([])
+        all_post_1 = np.array([])
+        all_post_2 = np.array([])
+        all_post_3 = np.array([])
 
-# Iterate over all participants to evaluate the model
-for key in rewards.keys():
-    print(f'---------------------------------------------------------------------------------------')
-    print(f'Participant: {key}')
-    rewards_participant = rewards[key]
-    habitual_path, post_dist_0, post_dist_1, post_dist_2, post_dist_3, prior_dist_0, prior_dist_1, prior_dist_2, prior_dist_3, counts = evaluate_model(rewards_participant)
-    
-    all_post_0 = np.append(all_post_0, post_dist_0)
-    all_post_1 = np.append(all_post_1, post_dist_1)
-    all_post_2 = np.append(all_post_2, post_dist_2)
-    all_post_3 = np.append(all_post_3, post_dist_3)
+        all_prior_0 = np.array([])
+        all_prior_1 = np.array([])
+        all_prior_2 = np.array([])
+        all_prior_3 = np.array([])
 
-    all_prior_0 = np.append(all_prior_0, prior_dist_0)
-    all_prior_1 = np.append(all_prior_1, prior_dist_1)
-    all_prior_2 = np.append(all_prior_2, prior_dist_2)
-    all_prior_3 = np.append(all_prior_3, prior_dist_3)
+        # Iterate over all participants to evaluate the model
+        for key in rewards.keys():
+            rewards_participant = rewards[key]
+            habitual_path, post_dist_0, post_dist_1, post_dist_2, post_dist_3, prior_dist_0, prior_dist_1, prior_dist_2, prior_dist_3, counts = evaluate_model(rewards_participant, parameter)
+            
+            all_post_0 = np.append(all_post_0, post_dist_0)
+            all_post_1 = np.append(all_post_1, post_dist_1)
+            all_post_2 = np.append(all_post_2, post_dist_2)
+            all_post_3 = np.append(all_post_3, post_dist_3)
 
-    print(f'Path was optimal path: {counts}')
+            all_prior_0 = np.append(all_prior_0, prior_dist_0)
+            all_prior_1 = np.append(all_prior_1, prior_dist_1)
+            all_prior_2 = np.append(all_prior_2, prior_dist_2)
+            all_prior_3 = np.append(all_prior_3, prior_dist_3)
+
+        # Mittelwerte der Wahrscheinlichkeiten für jede Distanz
+        means = [np.mean(all_post_0), np.mean(all_post_1), np.mean(all_post_2), np.mean(all_post_3)]
+
+        # Lineare Regression durchführen
+        slope, intercept, r_value, p_value, std_err = linregress(distances, means)
+
+        # Regressionslinie berechnen
+        regression_line = slope * distances + intercept
+
+        # Berechne die Differenz zwischen der Regressionslinie und der experimentellen Daten
+        diff = np.sum(np.abs(regression_line - regression_line_exp))
+
+        # Save the difference in the matrix
+        matrix[probabilities.index(probability), parameters.index(parameter)] = diff
+
+        print(f'Probability: {probability}, Parameter: {parameter}, Difference: {diff}')
+        print(f'Progress of Grid Search: {np.round((probabilities.index(probability) * len(parameters) + parameters.index(parameter)) / (len(probabilities) * len(parameters)) * 100, 2)}%')
+         
+        # Speichere die Daten in der Liste
+        data.append({
+            'Probability': probability,
+            'Parameter': parameter,
+            'Difference': diff
+        })
+
+# Save the matrix in a csv file
+df = pd.DataFrame(matrix)
+df.to_csv('diff_matrix.csv', index=False)
+
+# Extract top 10 minimum values of the matrix and the values for the best probability and parameter
+min_values = np.sort(matrix.flatten())[:10]
+min_indices = np.unravel_index(np.argsort(matrix, axis=None), matrix.shape)
+
+# Log the top 10 minimum values at the end of a new csv file
+best_values = []
+for i in range(1):
+    best_values.append({
+        'Probability': probabilities[min_indices[0][i]],
+        'Parameter': parameters[min_indices[1][i]],
+        'Difference': min_values[i]
+    })
+
+# Save the best values in a csv file
+df_best = pd.DataFrame(best_values)
+df_best.to_csv('best_values.csv', index=False) 
+
+
+
 
 # Calculate the mean probability of choosing the optimal path for each distance to the habitual path
 mean_prediction_0 = np.mean(all_post_0)
 mean_prediction_1 = np.mean(all_post_1)
 mean_prediction_2 = np.mean(all_post_2)
 mean_prediction_3 = np.mean(all_post_3)
+
 print(f'Mean probability to choose the optimal path when distance to habitual path is 0: {mean_prediction_0}')
 print(f'Mean probability to choose the optimal path when distance to habitual path is 1: {mean_prediction_1}')
 print(f'Mean probability to choose the optimal path when distance to habitual path is 2: {mean_prediction_2}')
-print(f'Mean probability to choose the optimal path when distance to habitual path is 3: {mean_prediction_3}')
+print(f'Mean probability to choose the optimal path when distance to habitual path is 3: {mean_prediction_3}') 
 
 # Calculate the mean prior probability of choosing the optimal path for each distance to the habitual path
 mean_prior_0 = np.mean(all_prior_0)
 mean_prior_1 = np.mean(all_prior_1)
 mean_prior_2 = np.mean(all_prior_2)
 mean_prior_3 = np.mean(all_prior_3)
+
+"""
 print(f'Mean prior probability to choose the optimal path when distance to habitual path is 0: {mean_prior_0}')
 print(f'Mean prior probability to choose the optimal path when distance to habitual path is 1: {mean_prior_1}')
 print(f'Mean prior probability to choose the optimal path when distance to habitual path is 2: {mean_prior_2}')
-print(f'Mean prior probability to choose the optimal path when distance to habitual path is 3: {mean_prior_3}')
+print(f'Mean prior probability to choose the optimal path when distance to habitual path is 3: {mean_prior_3}') """
 
 
-# Erstelle eine DataFrame aus den gesammelten Daten
+""" # Erstelle eine DataFrame aus den gesammelten Daten
 results_df = pd.DataFrame(data)
 
 # Exportiere die Tabelle in eine CSV-Datei
-results_df.to_csv('trial_results.csv', index=False)
+results_df.to_csv('trial_results.csv', index=False) """
 
+
+""" # ----------------------------------------------------------------------------------------------------------------------
 # Plotting the results
 import matplotlib.pyplot as plt
 # Plot the probabilities of choosing the optimal path based on the distance to the habitual path
@@ -359,6 +413,20 @@ plt.plot([0, 1, 2, 3], [mean_prior_0, mean_prior_1, mean_prior_2, mean_prior_3],
 plt.xlabel('Distance to Habitual Path')
 plt.ylabel('Probability of Choosing Optimal Path')
 plt.title('Probability of Choosing Optimal Path Based on Distance to Habitual Path')
+plt.legend()
+plt.grid(True)
+plt.show() """
+
+import matplotlib.pyplot as plt
+# Plot the experimental regression line and the model regression line
+# Model regression line is always the last one of the Grid Search
+plt.figure(figsize=(10, 6))
+plt.plot(distances, regression_line_exp, color='black', label='Experimental Regression Line')
+plt.plot(distances, regression_line, color='red', label='Model Regression Line')
+plt.scatter(distances, means, color='red', label='Model Prediction')
+plt.xlabel('Distance to Habitual Path')
+plt.ylabel('Probability of Choosing Optimal Path')
+plt.title('Model Prediction vs. Experimental Data')
 plt.legend()
 plt.grid(True)
 plt.show()

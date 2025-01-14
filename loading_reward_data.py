@@ -23,14 +23,14 @@ def softmax(vector, temperature=1.0):
     return np.exp(vector/temperature) / np.sum(np.exp(vector/temperature), axis=0)
 
 # Replaces the softmax function with a function which gives the optimal path .99 and all the other .01
-def one_hot_encoding(vector):
+def one_hot_encoding(vector, probability):
     optimal_path = np.argmax(vector)
     softmax_values = np.zeros(len(vector))
-    softmax_values[optimal_path] = 0.99
-    softmax_values[softmax_values == 0] = 0.01
+    softmax_values[optimal_path] = probability
+    softmax_values[softmax_values == 0] = 1 - probability
     return softmax_values
 
-def reward_processing():
+def reward_processing(probability):
     folder_path = r'C:\Users\valen\OneDrive\Dokumente\7Semester\Bachelorarbeit\maze_planning\reward_data'
     reward_data = load_reward_data(folder_path)
 
@@ -48,7 +48,7 @@ def reward_processing():
             row_sums = np.sum(trial_array, axis=1)
             
             # Compute softmax and its complement
-            encoded_values = one_hot_encoding(row_sums)
+            encoded_values = one_hot_encoding(row_sums, probability)
             # encoded_values = softmax(row_sums)
             complement_values = 1 - encoded_values
             
