@@ -4,6 +4,7 @@ from pgmpy.inference import BeliefPropagation
 import pandas as pd
 import numpy as np
 from loading_reward_data import reward_processing
+from loading_experiment_data import load_maze_data
 import logging
 from scipy.stats import linregress
 
@@ -338,95 +339,8 @@ df.to_csv('diff_matrix.csv', index=False)
 min_values = np.sort(matrix.flatten())[:10]
 min_indices = np.unravel_index(np.argsort(matrix, axis=None), matrix.shape)
 
-# Log the top 10 minimum values at the end of a new csv file
-best_values = []
-for i in range(1):
-    best_values.append({
-        'Probability': probabilities[min_indices[0][i]],
-        'Parameter': parameters[min_indices[1][i]],
-        'Difference': min_values[i]
-    })
-
-# Save the best values in a csv file
-df_best = pd.DataFrame(best_values)
-df_best.to_csv('best_values.csv', index=False) 
 
 
 
 
-# Calculate the mean probability of choosing the optimal path for each distance to the habitual path
-mean_prediction_0 = np.mean(all_post_0)
-mean_prediction_1 = np.mean(all_post_1)
-mean_prediction_2 = np.mean(all_post_2)
-mean_prediction_3 = np.mean(all_post_3)
 
-print(f'Mean probability to choose the optimal path when distance to habitual path is 0: {mean_prediction_0}')
-print(f'Mean probability to choose the optimal path when distance to habitual path is 1: {mean_prediction_1}')
-print(f'Mean probability to choose the optimal path when distance to habitual path is 2: {mean_prediction_2}')
-print(f'Mean probability to choose the optimal path when distance to habitual path is 3: {mean_prediction_3}') 
-
-# Calculate the mean prior probability of choosing the optimal path for each distance to the habitual path
-mean_prior_0 = np.mean(all_prior_0)
-mean_prior_1 = np.mean(all_prior_1)
-mean_prior_2 = np.mean(all_prior_2)
-mean_prior_3 = np.mean(all_prior_3)
-
-"""
-print(f'Mean prior probability to choose the optimal path when distance to habitual path is 0: {mean_prior_0}')
-print(f'Mean prior probability to choose the optimal path when distance to habitual path is 1: {mean_prior_1}')
-print(f'Mean prior probability to choose the optimal path when distance to habitual path is 2: {mean_prior_2}')
-print(f'Mean prior probability to choose the optimal path when distance to habitual path is 3: {mean_prior_3}') """
-
-
-""" # Erstelle eine DataFrame aus den gesammelten Daten
-results_df = pd.DataFrame(data)
-
-# Exportiere die Tabelle in eine CSV-Datei
-results_df.to_csv('trial_results.csv', index=False) """
-
-
-""" # ----------------------------------------------------------------------------------------------------------------------
-# Plotting the results
-import matplotlib.pyplot as plt
-# Plot the probabilities of choosing the optimal path based on the distance to the habitual path
-plt.figure(figsize=(10, 6))
-
-# Plot individual data points
-plt.scatter(np.zeros_like(all_post_0), all_post_0, color='blue', label='Posterior', alpha=0.6)
-plt.scatter(np.ones_like(all_post_1), all_post_1, color='green', label='Posterior', alpha=0.6)
-plt.scatter(np.full_like(all_post_2, 2), all_post_2, color='orange', label='Posterior', alpha=0.6)
-plt.scatter(np.full_like(all_post_3, 3), all_post_3, color='red', label='Posterio', alpha=0.6)
-
-# Include Prior probabilities
-plt.scatter(np.zeros_like(all_prior_0), all_prior_0, color='blue', marker='x', label='Prior')
-plt.scatter(np.ones_like(all_prior_1), all_prior_1, color='green', marker='x', label='Prior')
-plt.scatter(np.full_like(all_prior_2, 2), all_prior_2, color='orange', marker='x', label='Prior')
-plt.scatter(np.full_like(all_prior_3, 3), all_prior_3, color='red', marker='x', label='Prior')
-
-# Plot mean probabilities
-plt.plot([0, 1, 2, 3], [mean_prediction_0, mean_prediction_1, mean_prediction_2, mean_prediction_3], color='black', marker='o', linestyle='-', linewidth=2, markersize=8, label='Mean Probability')
-
-# Plot mean prior probabilities
-plt.plot([0, 1, 2, 3], [mean_prior_0, mean_prior_1, mean_prior_2, mean_prior_3], color='black', marker='x', linestyle='--', linewidth=2, markersize=8, label='Mean Prior Probability')
-
-# Labels and title
-plt.xlabel('Distance to Habitual Path')
-plt.ylabel('Probability of Choosing Optimal Path')
-plt.title('Probability of Choosing Optimal Path Based on Distance to Habitual Path')
-plt.legend()
-plt.grid(True)
-plt.show() """
-
-import matplotlib.pyplot as plt
-# Plot the experimental regression line and the model regression line
-# Model regression line is always the last one of the Grid Search
-plt.figure(figsize=(10, 6))
-plt.plot(distances, regression_line_exp, color='black', label='Experimental Regression Line')
-plt.plot(distances, regression_line, color='red', label='Model Regression Line')
-plt.scatter(distances, means, color='red', label='Model Prediction')
-plt.xlabel('Distance to Habitual Path')
-plt.ylabel('Probability of Choosing Optimal Path')
-plt.title('Model Prediction vs. Experimental Data')
-plt.legend()
-plt.grid(True)
-plt.show()
