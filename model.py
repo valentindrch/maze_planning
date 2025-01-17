@@ -98,3 +98,23 @@ cpd_s3_given_s2_a2 = TabularCPD(
     ]
 )
 model.add_cpds(cpd_a0, cpd_s1_given_a0, cpd_a1_given_s1, cpd_s2_given_s1_a1, cpd_a2_given_s2, cpd_s3_given_s2_a2)
+
+# Create function to change goal
+def def_goal(index, value=.95):
+
+    # Make cpd array
+    arr = np.zeros((2, 8))
+    arr[0, :] = 1 - value
+    arr[0, index] = value
+    arr[1, :] = value
+    arr[1, index] = 1 - value
+
+    # Add to model
+    cpd_o3_given_s3 = TabularCPD(
+        variable='o3',
+        variable_card=2,
+        evidence=['s3'],
+        evidence_card=[8],
+        values=arr,
+    )
+    model.add_cpds(cpd_o3_given_s3)

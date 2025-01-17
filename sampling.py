@@ -17,7 +17,7 @@ class Sampler():
         self.trace = [self.prior.copy()]
         self.sampled_belief = self.prior.copy()
 
-    def query(self, query_vars, evidence):
+    def query(self, query_vars, evidence, max_samples=None):
 
         kl_divs = np.ones(50)  # specify convergence window (no large influence)
         
@@ -41,4 +41,8 @@ class Sampler():
             #print(sum(kl_divs))
             self.trace.append(self.sampled_belief)
 
-        return self.sampled_belief, len(self.trace)
+            if max_samples and len(self.trace) >= max_samples:  # add option to stop sampling after certain number of iterations
+                break
+
+        self.trace = np.array(self.trace)
+        return self.sampled_belief, self.trace.shape[0]
