@@ -30,9 +30,8 @@ def one_hot_encoding(vector, probability):
     softmax_values[softmax_values == 0] = 1 - probability
     return softmax_values
 
-def reward_processing(probability):
-    folder_path = r'C:\Users\valen\OneDrive\Dokumente\7Semester\Bachelorarbeit\maze_planning\reward_data'
-    reward_data = load_reward_data(folder_path)
+def reward_processing(reward_data, key, probability):
+    #folder_path = r'C:\Users\valen\OneDrive\Dokumente\7Semester\Bachelorarbeit\maze_planning\reward_data'
 
     # Generalized processing for all keys in reward_data
     reward_distributions = {}
@@ -63,41 +62,20 @@ def reward_processing(probability):
         # Store the processed trials for the current subject
         reward_distributions[subject_key] = processed_trials
 
-    return reward_distributions
-    """ if key in reward_distributions:
+    if key in reward_distributions:
         return reward_distributions[key]
-    else:
-        print(f"Subject key '{key}' not found in reward data")
-        return None """
+    else: 
+        print(f"Key {key} not found in reward data")
+        return None
+    
+# Write rewards_0 to a json file
 
+def write_json(data, file_path):
+    with open(file_path, 'w') as file:
+        json.dump(data, file)
 
-""" # Generalized processing for all keys in reward_data
-reward_distributions = {}
-
-for subject_key, subject_data in reward_data.items():
-    # Extract only the NumPy arrays
-    trials = [item[0] for item in subject_data]
-
-    # Sum each row of trials
-    sums = np.array([np.sum(trial, axis=1) for trial in trials])
-
-    # Compute reward distributions (values and complements)
-    reward_distributions[subject_key] = np.array([
-        np.concatenate([[softmax(trial)], [1 - softmax(trial)]]) for trial in sums
-    ])
- """
-
-""" # Determine Habitual Path of a Participant
-def habitual_path(data):
-    for i in range(len(data)):
-        if data[i]['extra_elements'][0] == 0:
-            return data[i]['extra_elements'][1]
-        else:
-            pass
-
-# List the habitual paths of all participants
-def all_habitual_paths(reward_data):
-    # List the subject key and its habitual path
-    return {subject_key: habitual_path(data) for subject_key, data in reward_data.items()}
- """
+def read_json(file_path):
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+    return data
 
