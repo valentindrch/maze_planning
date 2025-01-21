@@ -418,8 +418,6 @@ def run_partipant(exp_key, rewards_key, reward_data, exp_data_participant, matri
                 predictions = np.append(predictions, posterior)
                 actual_choices = np.append(actual_choices, int(trial['optimality'] == 'TRUE'))
 
-            
-
             # K-Cross-Validation
             mean_log_likelihood = k_cross_validation(predictions, actual_choices, k=5)
 
@@ -429,6 +427,13 @@ def run_partipant(exp_key, rewards_key, reward_data, exp_data_participant, matri
             # Print the current probability and parameter and status of the grid search as a percentage
             print(f"Probability: {probability}, Parameter: {parameter}, Progress: {np.sum(matrix != 0) / matrix.size * 100:.2f}%")
 
+            
+
+    # Add the matrix to the all_matrix such that the log-likelihoods of all participants are stored
+    # We want the entire matrix to be added on top of the all_matrix
+    all_matrix += matrix
+
+    
 
     # Save the probability and parameter with the best log-likelihood
     training_log_likelihood = np.max(matrix)
@@ -440,6 +445,15 @@ def run_partipant(exp_key, rewards_key, reward_data, exp_data_participant, matri
     rewards = reward_processing(reward_data, rewards_key, training_probability)
     post_dist, post_dist_0, post_dist_1, post_dist_2, post_dist_3 = train_model(rewards, training_parameter)
 
+
+    # Extract post_dists for overall performance
+    all_post_0.append(post_dist_0)
+    all_post_1.append(post_dist_1)
+    all_post_2.append(post_dist_2)
+    all_post_3.append(post_dist_3)
+
+
+    # Compute the log-likelihood of Test-Set
     predictions = np.array([])
     actual_choices = np.array([])
     for trial in test_set:
@@ -459,8 +473,7 @@ def run_partipant(exp_key, rewards_key, reward_data, exp_data_participant, matri
     logging.info(f"  Log-Likelihood on the test set: {test_log_likelihood}")
     
 
-
-    # Combine the data
+    # Combine the data for the logistic regression
     distances_post = np.concatenate([np.full_like(post_dist_0, 0),
                                 np.full_like(post_dist_1, 1),
                                 np.full_like(post_dist_2, 2),
@@ -475,6 +488,7 @@ def run_partipant(exp_key, rewards_key, reward_data, exp_data_participant, matri
     result_post = model_post.fit()
 
 
+    # Go over the experimental data to fit a logistic regression model
     # Flatten experimental data
     distances_exp = []
     optimality = []
@@ -531,14 +545,14 @@ def run_partipant(exp_key, rewards_key, reward_data, exp_data_participant, matri
 
     logging.info(f"Finished with Participant {exp_key}.")
 
-    
+    return all_matrix, all_post_0, all_post_1, all_post_2, all_post_3
 
     
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define Grid Search parameters
-probabilities = [0.95, 0.92, 0.91, 0.9, 0.89, 0.88, 0.87, 0.86, 0.85, 0.84, 0.8]	
-parameters = [0.02 ,0.05, 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 50.0]
+probabilities = [0.99, 0.975, 0.95, 0.92, 0.91, 0.9, 0.89, 0.88, 0.87, 0.86, 0.85, 0.84, 0.82, 0.8, 0.78, 0.75, 0.7]	
+parameters = [0.02 ,0.05, 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 30.0, 50.0]
 
 
 # Load data
@@ -548,7 +562,14 @@ reward_data = load_reward_data(r'C:\Users\valen\OneDrive\Dokumente\7Semester\Bac
 """ # Only take the first2 participants for testing
 maze_data = {key: maze_data[key] for key in list(maze_data.keys())[:2]} """
 
-
+# Initialize matrix to store post_dist_0, ..., post_dist_3 depending on the probability and parameter
+# The matrix has the shape len(probabilities) x len(parameters) x 4
+all_matrix = np.zeros(len(probabilities), len(parameters))
+                  
+all_post_0 = []
+all_post_1 = []
+all_post_2 = []
+all_post_3 = []
 
 
 # Iterate over exp_data
@@ -562,7 +583,7 @@ for exp_key in maze_data:
     # Check if the reward key exists in reward_data
     if reward_key in reward_data:
         # Access data from both dictionaries
-        run_partipant(exp_key, reward_key, reward_data, exp_data_participant, matrix, probabilities, parameters)
+        all_matrix, all_post_0, all_post_1, all_post_2, all_post_3 = run_partipant(exp_key, reward_key, reward_data, exp_data_participant, matrix, probabilities, parameters)
     else: 
         logging.warning(f"Reward key {reward_key} not found in reward_data")
         continue
@@ -570,3 +591,82 @@ for exp_key in maze_data:
     logging.info("Percent processed: {:.2f}%".format((list(maze_data.keys()).index(exp_key) + 1) / len(maze_data) * 100))
 
 logging.info("All participants processed.")
+
+# Get the maximum of the all_matrix
+max_log_likelihood = np.max(all_matrix)
+max_indices = np.unravel_index(np.argmax(all_matrix, axis=None), all_matrix.shape)
+best_probability = probabilities[max_indices[0]]
+best_parameter = parameters[max_indices[1]]
+
+logging.info(f"Best Probability over all Participants: {best_probability}")
+logging.info(f"Best Parameter over all Participants: {best_parameter}")
+
+# Combine the data
+distances_all = np.concatenate([np.full_like(all_post_0, 0),
+                            np.full_like(all_post_1, 1),
+                            np.full_like(all_post_2, 2),
+                            np.full_like(all_post_3, 3)])  # X-axis (distances)
+
+posteriors_all = np.concatenate([all_post_0, all_post_1, all_post_2, all_post_3])  # Y-axis (probabilities)
+
+# Fit a logistic regression model
+X_all = sm.add_constant(distances_all)  # Add an intercept term
+model_all = sm.GLM(posteriors_all, X_all, family=sm.families.Binomial())
+result_all = model_all.fit()
+
+
+# Flatten experimental data
+distances_exp = []
+optimality = []
+
+for exp_key in maze_data:
+    exp_data_participant = maze_data[exp_key]
+    for trial in exp_data_participant:
+        distances_exp.append(trial["distance"])
+        optimality.append(int(trial['optimality'] == 'TRUE'))
+
+distances_exp = np.array(distances_exp, dtype=float)
+optimality = np.array(optimality, dtype=float)
+
+# Add intercept term
+X_exp = sm.add_constant(distances_exp)
+
+# Fit logistic regression model for experimental data
+model_exp = sm.GLM(optimality, X_exp, family=sm.families.Binomial())
+result_exp = model_exp.fit()
+
+# --- Step 3: Generate Predictions for Plotting ---
+# Generate a range of distances
+x_range = np.linspace(0, 3, 100)
+X_range = sm.add_constant(x_range)
+
+# Predict probabilities
+y_range_post = result_all.predict(X_range)  # Posterior data
+y_range_exp = result_exp.predict(X_range)  # Experimental data
+
+# --- Step 4: Plot Results ---
+plt.figure(figsize=(10, 6))
+
+# Plot experimental data
+plt.scatter(distances_exp, optimality, color='blue', label='Experimental Data', alpha=0.6)
+plt.plot(x_range, y_range_exp, color='blue', label='Logistic Regression (Experimental)', linestyle='--')
+
+# Plot posterior data
+plt.scatter(distances_all, posteriors_all, color='red', label='Posterior Data', alpha=0.6)
+plt.plot(x_range, y_range_post, color='red', label='Logistic Regression (Posterior)', linestyle='-')
+
+# Labels, legend, and title
+plt.xlabel('Distance')
+plt.ylabel('Probability')
+plt.legend()
+plt.title('Logistic Regression: Experimental vs Posterior Data')
+
+logging.info(f"  Regression Summary (Model Data):\n{result_all.summary()}")
+logging.info(f"  Regression Summary (Experimental Data):\n{result_exp.summary()}")
+
+# Save the plot
+if not os.path.exists("plots"):
+    os.makedirs("plots")
+plot_path = f"plots/all_logistic_regression.png"
+plt.savefig(plot_path)
+plt.close()
