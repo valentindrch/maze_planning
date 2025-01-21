@@ -22,15 +22,15 @@ logging.getLogger("pgmpy").setLevel(logging.ERROR)
 
 # --- Logging Configuration ---
 # Create a logs directory if it doesn't exist
-if not os.path.exists("logs"):
-    os.makedirs("logs")
+if not os.path.exists("complete_logs"):
+    os.makedirs("complete_logs")
 
 # Configure logging to log to both file and console
 logging.basicConfig(
     level=logging.INFO,  # Set the logging level
     format="%(message)s",
     handlers=[
-        logging.FileHandler("logs/participant_analysis.log"),  # Write to log file
+        logging.FileHandler("complete_logs/participant_analysis.log"),  # Write to log file
         logging.StreamHandler()  # Print to console
     ]
 )
@@ -392,7 +392,7 @@ def k_cross_validation(predictions, actual_choices, k=5):
     mean_normalized_log_likelihood = np.mean(normalized_log_likelihoods)
     return mean_normalized_log_likelihood
 
-def run_partipant(exp_key, rewards_key, reward_data, exp_data_participant, matrix, probabilities, parameters):
+def run_partipant(exp_key, rewards_key, reward_data, exp_data_participant, matrix, probabilities, parameters, all_matrix, all_post_0, all_post_1, all_post_2, all_post_3):
     train_set, test_set = split_data(exp_data_participant)
     # Grid Search
     for probability in probabilities:
@@ -447,11 +447,10 @@ def run_partipant(exp_key, rewards_key, reward_data, exp_data_participant, matri
 
 
     # Extract post_dists for overall performance
-    all_post_0.append(post_dist_0)
-    all_post_1.append(post_dist_1)
-    all_post_2.append(post_dist_2)
-    all_post_3.append(post_dist_3)
-
+    all_post_0 = np.concatenate([all_post_0, post_dist_0])
+    all_post_1 = np.concatenate([all_post_1, post_dist_1])
+    all_post_2 = np.concatenate([all_post_2, post_dist_2])
+    all_post_3 = np.concatenate([all_post_3, post_dist_3])
 
     # Compute the log-likelihood of Test-Set
     predictions = np.array([])
@@ -537,9 +536,9 @@ def run_partipant(exp_key, rewards_key, reward_data, exp_data_participant, matri
     logging.info(f"  Regression Summary (Experimental Data):\n{result_exp.summary()}")
 
     # Save the plot
-    if not os.path.exists("plots"):
-        os.makedirs("plots")
-    plot_path = f"plots/{exp_key}_logistic_regression.png"
+    if not os.path.exists("complete_plots"):
+        os.makedirs("complete_plots")
+    plot_path = f"complete_plots/{exp_key}_logistic_regression.png"
     plt.savefig(plot_path)
     plt.close()
 
@@ -552,7 +551,7 @@ def run_partipant(exp_key, rewards_key, reward_data, exp_data_participant, matri
 # ----------------------------------------------------------------------------------------------------------------------
 # Define Grid Search parameters
 probabilities = [0.99, 0.975, 0.95, 0.92, 0.91, 0.9, 0.89, 0.88, 0.87, 0.86, 0.85, 0.84, 0.82, 0.8, 0.78, 0.75, 0.7]	
-parameters = [0.02 ,0.05, 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 30.0, 50.0]
+parameters = [0.02, 0.05, 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 30.0, 50.0]
 
 
 # Load data
@@ -560,17 +559,16 @@ maze_data = load_maze_data('maze_data.csv')
 reward_data = load_reward_data(r'C:\Users\valen\OneDrive\Dokumente\7Semester\Bachelorarbeit\maze_planning\reward_data')
 
 """ # Only take the first2 participants for testing
-maze_data = {key: maze_data[key] for key in list(maze_data.keys())[:2]} """
+maze_data = {key: maze_data[key] for key in list(maze_data.keys())[:1]} """
 
 # Initialize matrix to store post_dist_0, ..., post_dist_3 depending on the probability and parameter
 # The matrix has the shape len(probabilities) x len(parameters) x 4
-all_matrix = np.zeros(len(probabilities), len(parameters))
+all_matrix = np.zeros((len(probabilities), len(parameters)))
                   
-all_post_0 = []
-all_post_1 = []
-all_post_2 = []
-all_post_3 = []
-
+all_post_0 = np.empty((0,), dtype=float)
+all_post_1 = np.empty((0,), dtype=float)
+all_post_2 = np.empty((0,), dtype=float)
+all_post_3 = np.empty((0,), dtype=float)
 
 # Iterate over exp_data
 for exp_key in maze_data:
@@ -583,7 +581,7 @@ for exp_key in maze_data:
     # Check if the reward key exists in reward_data
     if reward_key in reward_data:
         # Access data from both dictionaries
-        all_matrix, all_post_0, all_post_1, all_post_2, all_post_3 = run_partipant(exp_key, reward_key, reward_data, exp_data_participant, matrix, probabilities, parameters)
+        all_matrix, all_post_0, all_post_1, all_post_2, all_post_3 = run_partipant(exp_key, reward_key, reward_data, exp_data_participant, matrix, probabilities, parameters, all_matrix, all_post_0, all_post_1, all_post_2, all_post_3)
     else: 
         logging.warning(f"Reward key {reward_key} not found in reward_data")
         continue
@@ -665,8 +663,8 @@ logging.info(f"  Regression Summary (Model Data):\n{result_all.summary()}")
 logging.info(f"  Regression Summary (Experimental Data):\n{result_exp.summary()}")
 
 # Save the plot
-if not os.path.exists("plots"):
-    os.makedirs("plots")
-plot_path = f"plots/all_logistic_regression.png"
+if not os.path.exists("complete_plots"):
+    os.makedirs("_complete_plots")
+plot_path = f"complete_plots/all_logistic_regression.png"
 plt.savefig(plot_path)
 plt.close()

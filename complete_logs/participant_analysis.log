@@ -1,0 +1,1286 @@
+Participant 1:
+  Best Probability: 0.91
+  Best Parameter: 2.0
+  Log-Likelihood on the training set: -0.47291101237623556
+  Log-Likelihood on the test set: -0.5486672861982083
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -36.292
+Date:                Tue, 21 Jan 2025   Deviance:                       2.0681
+Time:                        17:22:08   Pearson chi2:                     2.24
+No. Iterations:                     4   Pseudo R-squ. (CS):             0.1557
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.7411      0.357      4.877      0.000       1.041       2.441
+x1            -0.7990      0.206     -3.873      0.000      -1.203      -0.395
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -52.249
+Date:                Tue, 21 Jan 2025   Deviance:                       104.50
+Time:                        17:22:08   Pearson chi2:                     102.
+No. Iterations:                     4   Pseudo R-squ. (CS):             0.1757
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.7994      0.363      4.953      0.000       1.087       2.511
+x1            -0.8596      0.210     -4.091      0.000      -1.271      -0.448
+==============================================================================
+Finished with Participant 1.
+Percent processed: 3.45%
+Participant 10:
+  Best Probability: 0.91
+  Best Parameter: 1.0
+  Log-Likelihood on the training set: -0.5194304711346173
+  Log-Likelihood on the test set: -0.43779643814494923
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -34.050
+Date:                Tue, 21 Jan 2025   Deviance:                       2.3276
+Time:                        17:32:02   Pearson chi2:                     2.65
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.2193
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.9848      0.384      5.171      0.000       1.233       2.737
+x1            -1.0131      0.225     -4.495      0.000      -1.455      -0.571
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -48.992
+Date:                Tue, 21 Jan 2025   Deviance:                       97.984
+Time:                        17:32:02   Pearson chi2:                     103.
+No. Iterations:                     4   Pseudo R-squ. (CS):             0.1703
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          2.0489      0.393      5.218      0.000       1.279       2.818
+x1            -0.8841      0.220     -4.022      0.000      -1.315      -0.453
+==============================================================================
+Finished with Participant 10.
+Percent processed: 6.90%
+Participant 11:
+  Best Probability: 0.89
+  Best Parameter: 30.0
+  Log-Likelihood on the training set: -0.666616180778425
+  Log-Likelihood on the test set: -0.5860420357617913
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -44.103
+Date:                Tue, 21 Jan 2025   Deviance:                      0.56478
+Time:                        17:41:47   Pearson chi2:                    0.566
+No. Iterations:                     3   Pseudo R-squ. (CS):            0.01382
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.5611      0.275      2.044      0.041       0.023       1.099
+x1            -0.2058      0.175     -1.177      0.239      -0.548       0.137
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -66.546
+Date:                Tue, 21 Jan 2025   Deviance:                       133.09
+Time:                        17:41:47   Pearson chi2:                     100.
+No. Iterations:                     4   Pseudo R-squ. (CS):           0.006560
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.5941      0.276      2.153      0.031       0.053       1.135
+x1            -0.1425      0.176     -0.812      0.417      -0.487       0.202
+==============================================================================
+Finished with Participant 11.
+Percent processed: 10.34%
+Participant 12:
+  Best Probability: 0.95
+  Best Parameter: 4.0
+  Log-Likelihood on the training set: -0.46282855528630656
+  Log-Likelihood on the test set: -0.47183992156166227
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -31.232
+Date:                Tue, 21 Jan 2025   Deviance:                       1.8645
+Time:                        17:51:38   Pearson chi2:                     2.02
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.1243
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          2.3096      0.434      5.316      0.000       1.458       3.161
+x1            -0.7973      0.231     -3.456      0.001      -1.250      -0.345
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -49.345
+Date:                Tue, 21 Jan 2025   Deviance:                       98.689
+Time:                        17:51:38   Pearson chi2:                     95.2
+No. Iterations:                     4   Pseudo R-squ. (CS):             0.1472
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          2.0292      0.393      5.167      0.000       1.260       2.799
+x1            -0.8256      0.220     -3.758      0.000      -1.256      -0.395
+==============================================================================
+Finished with Participant 12.
+Percent processed: 13.79%
+Participant 13:
+  Best Probability: 0.8
+  Best Parameter: 50.0
+  Log-Likelihood on the training set: -0.6745742764119778
+  Log-Likelihood on the test set: -0.6931700131690407
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -43.693
+Date:                Tue, 21 Jan 2025   Deviance:                      0.12150
+Time:                        18:01:19   Pearson chi2:                    0.121
+No. Iterations:                     3   Pseudo R-squ. (CS):           0.002281
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         -0.3830      0.271     -1.413      0.158      -0.914       0.148
+x1            -0.0847      0.178     -0.476      0.634      -0.433       0.264
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -66.011
+Date:                Tue, 21 Jan 2025   Deviance:                       132.02
+Time:                        18:01:19   Pearson chi2:                     99.9
+No. Iterations:                     4   Pseudo R-squ. (CS):            0.02548
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         -0.7012      0.281     -2.498      0.012      -1.251      -0.151
+x1             0.2810      0.176      1.598      0.110      -0.064       0.626
+==============================================================================
+Finished with Participant 13.
+Percent processed: 17.24%
+Participant 14:
+  Best Probability: 0.86
+  Best Parameter: 6.0
+  Log-Likelihood on the training set: -0.6296450413717538
+  Log-Likelihood on the test set: -0.7178039832272397
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -43.243
+Date:                Tue, 21 Jan 2025   Deviance:                       2.0338
+Time:                        18:11:00   Pearson chi2:                     2.06
+No. Iterations:                     4   Pseudo R-squ. (CS):            0.06841
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.7472      0.284      2.633      0.008       0.191       1.303
+x1            -0.4728      0.182     -2.594      0.009      -0.830      -0.116
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -66.082
+Date:                Tue, 21 Jan 2025   Deviance:                       132.16
+Time:                        18:11:00   Pearson chi2:                     100.
+No. Iterations:                     4   Pseudo R-squ. (CS):            0.04398
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.6722      0.280      2.397      0.017       0.123       1.222
+x1            -0.3735      0.179     -2.090      0.037      -0.724      -0.023
+==============================================================================
+Finished with Participant 14.
+Percent processed: 20.69%
+Participant 15:
+  Best Probability: 0.92
+  Best Parameter: 50.0
+  Log-Likelihood on the training set: -0.6103426960584802
+  Log-Likelihood on the test set: -0.5620208116185005
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -42.286
+Date:                Tue, 21 Jan 2025   Deviance:                      0.37418
+Time:                        18:20:40   Pearson chi2:                    0.375
+No. Iterations:                     4   Pseudo R-squ. (CS):           0.008113
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.8220      0.287      2.864      0.004       0.260       1.384
+x1            -0.1585      0.175     -0.904      0.366      -0.502       0.185
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -59.123
+Date:                Tue, 21 Jan 2025   Deviance:                       118.25
+Time:                        18:20:40   Pearson chi2:                     100.
+No. Iterations:                     4   Pseudo R-squ. (CS):           0.003443
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.8326      0.290      2.871      0.004       0.264       1.401
+x1             0.1114      0.191      0.583      0.560      -0.263       0.486
+==============================================================================
+Finished with Participant 15.
+Percent processed: 24.14%
+Participant 16:
+  Best Probability: 0.92
+  Best Parameter: 2.0
+  Log-Likelihood on the training set: -0.46772469342918505
+  Log-Likelihood on the test set: -0.38776581341609523
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -34.123
+Date:                Tue, 21 Jan 2025   Deviance:                       2.0177
+Time:                        18:30:20   Pearson chi2:                     2.27
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.1863
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.9960      0.386      5.166      0.000       1.239       2.753
+x1            -0.8863      0.211     -4.204      0.000      -1.299      -0.473
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -48.037
+Date:                Tue, 21 Jan 2025   Deviance:                       96.074
+Time:                        18:30:20   Pearson chi2:                     102.
+No. Iterations:                     4   Pseudo R-squ. (CS):             0.1860
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          2.1258      0.404      5.267      0.000       1.335       2.917
+x1            -0.9004      0.215     -4.193      0.000      -1.321      -0.479
+==============================================================================
+Finished with Participant 16.
+Percent processed: 27.59%
+Participant 17:
+  Best Probability: 0.86
+  Best Parameter: 0.1
+  Log-Likelihood on the training set: -0.4583831896439782
+  Log-Likelihood on the test set: -0.7805211110567648
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -32.901
+Date:                Tue, 21 Jan 2025   Deviance:                       6.5344
+Time:                        18:39:59   Pearson chi2:                     7.18
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.3502
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.8030      0.365      4.941      0.000       1.088       2.518
+x1            -1.3838      0.262     -5.286      0.000      -1.897      -0.871
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -49.616
+Date:                Tue, 21 Jan 2025   Deviance:                       99.231
+Time:                        18:39:59   Pearson chi2:                     106.
+No. Iterations:                     4   Pseudo R-squ. (CS):             0.3158
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.4909      0.334      4.467      0.000       0.837       2.145
+x1            -1.2732      0.252     -5.058      0.000      -1.767      -0.780
+==============================================================================
+Finished with Participant 17.
+Percent processed: 31.03%
+Participant 18:
+  Best Probability: 0.89
+  Best Parameter: 50.0
+  Log-Likelihood on the training set: -0.6775442786462543
+  Log-Likelihood on the test set: -0.6343857647723967
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -44.478
+Date:                Tue, 21 Jan 2025   Deviance:                      0.31868
+Time:                        18:49:39   Pearson chi2:                    0.319
+No. Iterations:                     3   Pseudo R-squ. (CS):           0.006232
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.4369      0.270      1.617      0.106      -0.093       0.967
+x1            -0.1394      0.176     -0.790      0.429      -0.485       0.206
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -66.295
+Date:                Tue, 21 Jan 2025   Deviance:                       132.59
+Time:                        18:49:39   Pearson chi2:                     100.
+No. Iterations:                     4   Pseudo R-squ. (CS):           0.002235
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.4059      0.270      1.501      0.133      -0.124       0.936
+x1             0.0857      0.182      0.471      0.637      -0.271       0.442
+==============================================================================
+Finished with Participant 18.
+Percent processed: 34.48%
+Participant 19:
+  Best Probability: 0.9
+  Best Parameter: 50.0
+  Log-Likelihood on the training set: -0.6774686332350862
+  Log-Likelihood on the test set: -0.751661838150478
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -43.935
+Date:                Tue, 21 Jan 2025   Deviance:                      0.37597
+Time:                        18:59:20   Pearson chi2:                    0.377
+No. Iterations:                     3   Pseudo R-squ. (CS):           0.007434
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.5642      0.273      2.063      0.039       0.028       1.100
+x1            -0.1541      0.178     -0.864      0.388      -0.504       0.195
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -68.222
+Date:                Tue, 21 Jan 2025   Deviance:                       136.44
+Time:                        18:59:20   Pearson chi2:                     100.
+No. Iterations:                     4   Pseudo R-squ. (CS):           0.007392
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.3917      0.268      1.460      0.144      -0.134       0.918
+x1            -0.1521      0.177     -0.860      0.390      -0.498       0.194
+==============================================================================
+Finished with Participant 19.
+Percent processed: 37.93%
+Participant 2:
+  Best Probability: 0.95
+  Best Parameter: 50.0
+  Log-Likelihood on the training set: -0.5838773591017612
+  Log-Likelihood on the test set: -0.3327321446905026
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -37.026
+Date:                Tue, 21 Jan 2025   Deviance:                      0.41166
+Time:                        19:08:59   Pearson chi2:                    0.414
+No. Iterations:                     4   Pseudo R-squ. (CS):           0.009066
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.3639      0.327      4.174      0.000       0.723       2.004
+x1            -0.1813      0.189     -0.959      0.338      -0.552       0.189
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -53.878
+Date:                Tue, 21 Jan 2025   Deviance:                       107.76
+Time:                        19:08:59   Pearson chi2:                     100.
+No. Iterations:                     4   Pseudo R-squ. (CS):          0.0009958
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.2748      0.320      3.980      0.000       0.647       1.902
+x1            -0.0613      0.194     -0.317      0.752      -0.441       0.318
+==============================================================================
+Finished with Participant 2.
+Percent processed: 41.38%
+Participant 20:
+  Best Probability: 0.7
+  Best Parameter: 4.0
+  Log-Likelihood on the training set: -0.5890518818730006
+  Log-Likelihood on the test set: -0.6443868672729421
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -40.691
+Date:                Tue, 21 Jan 2025   Deviance:                      0.65901
+Time:                        19:18:38   Pearson chi2:                    0.650
+No. Iterations:                     4   Pseudo R-squ. (CS):            0.02154
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         -0.5330      0.275     -1.941      0.052      -1.071       0.005
+x1            -0.2951      0.206     -1.431      0.152      -0.699       0.109
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -59.542
+Date:                Tue, 21 Jan 2025   Deviance:                       119.08
+Time:                        19:18:38   Pearson chi2:                     98.3
+No. Iterations:                     4   Pseudo R-squ. (CS):            0.06095
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         -0.3194      0.270     -1.182      0.237      -0.849       0.210
+x1            -0.5238      0.225     -2.332      0.020      -0.964      -0.084
+==============================================================================
+Finished with Participant 20.
+Percent processed: 44.83%
+Participant 21:
+  Best Probability: 0.95
+  Best Parameter: 50.0
+  Log-Likelihood on the training set: -0.5528932874580647
+  Log-Likelihood on the test set: -0.8659833408558524
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -36.758
+Date:                Tue, 21 Jan 2025   Deviance:                      0.39665
+Time:                        19:28:18   Pearson chi2:                    0.400
+No. Iterations:                     4   Pseudo R-squ. (CS):           0.009468
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.3881      0.327      4.243      0.000       0.747       2.029
+x1            -0.1928      0.197     -0.981      0.327      -0.578       0.192
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -60.895
+Date:                Tue, 21 Jan 2025   Deviance:                       121.79
+Time:                        19:28:18   Pearson chi2:                     100.
+No. Iterations:                     4   Pseudo R-squ. (CS):           0.003829
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.7328      0.283      2.587      0.010       0.178       1.288
+x1             0.1172      0.191      0.614      0.539      -0.257       0.491
+==============================================================================
+Finished with Participant 21.
+Percent processed: 48.28%
+Participant 22:
+  Best Probability: 0.92
+  Best Parameter: 50.0
+  Log-Likelihood on the training set: -0.6281354430762198
+  Log-Likelihood on the test set: -0.44350508488074863
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -42.184
+Date:                Tue, 21 Jan 2025   Deviance:                      0.37475
+Time:                        19:37:58   Pearson chi2:                    0.377
+No. Iterations:                     4   Pseudo R-squ. (CS):           0.009052
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.8409      0.287      2.925      0.003       0.278       1.404
+x1            -0.1737      0.182     -0.955      0.339      -0.530       0.183
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -56.799
+Date:                Tue, 21 Jan 2025   Deviance:                       113.60
+Time:                        19:37:58   Pearson chi2:                     100.
+No. Iterations:                     4   Pseudo R-squ. (CS):            0.01008
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.8535      0.292      2.923      0.003       0.281       1.426
+x1             0.2060      0.209      0.987      0.324      -0.203       0.615
+==============================================================================
+Finished with Participant 22.
+Percent processed: 51.72%
+Participant 23:
+  Best Probability: 0.86
+  Best Parameter: 2.0
+  Log-Likelihood on the training set: -0.5691711600511714
+  Log-Likelihood on the test set: -0.6654024885928839
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -39.734
+Date:                Tue, 21 Jan 2025   Deviance:                       2.2857
+Time:                        19:47:36   Pearson chi2:                     2.44
+No. Iterations:                     4   Pseudo R-squ. (CS):             0.1550
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.2225      0.308      3.963      0.000       0.618       1.827
+x1            -0.7630      0.199     -3.839      0.000      -1.153      -0.373
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -60.253
+Date:                Tue, 21 Jan 2025   Deviance:                       120.51
+Time:                        19:47:36   Pearson chi2:                     98.5
+No. Iterations:                     4   Pseudo R-squ. (CS):             0.1240
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.1501      0.303      3.794      0.000       0.556       1.744
+x1            -0.6674      0.193     -3.465      0.001      -1.045      -0.290
+==============================================================================
+Finished with Participant 23.
+Percent processed: 55.17%
+Participant 24:
+  Best Probability: 0.92
+  Best Parameter: 50.0
+  Log-Likelihood on the training set: -0.6488829407138003
+  Log-Likelihood on the test set: -0.6649458455352695
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -42.278
+Date:                Tue, 21 Jan 2025   Deviance:                      0.40039
+Time:                        19:59:29   Pearson chi2:                    0.401
+No. Iterations:                     4   Pseudo R-squ. (CS):           0.007902
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.8223      0.287      2.864      0.004       0.260       1.385
+x1            -0.1581      0.177     -0.892      0.372      -0.505       0.189
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -65.767
+Date:                Tue, 21 Jan 2025   Deviance:                       131.53
+Time:                        19:59:30   Pearson chi2:                     100.
+No. Iterations:                     4   Pseudo R-squ. (CS):           0.002564
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.6249      0.278      2.247      0.025       0.080       1.170
+x1            -0.0887      0.175     -0.507      0.612      -0.431       0.254
+==============================================================================
+Finished with Participant 24.
+Percent processed: 58.62%
+Participant 25:
+  Best Probability: 0.91
+  Best Parameter: 0.8
+  Log-Likelihood on the training set: -0.5549873668327219
+  Log-Likelihood on the test set: -0.5569540503571807
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -35.669
+Date:                Tue, 21 Jan 2025   Deviance:                       5.4459
+Time:                        20:09:15   Pearson chi2:                     5.67
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.2130
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.8603      0.374      4.977      0.000       1.128       2.593
+x1            -0.9059      0.202     -4.480      0.000      -1.302      -0.510
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -54.931
+Date:                Tue, 21 Jan 2025   Deviance:                       109.86
+Time:                        20:09:16   Pearson chi2:                     99.4
+No. Iterations:                     4   Pseudo R-squ. (CS):             0.1880
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.5566      0.341      4.566      0.000       0.888       2.225
+x1            -0.8201      0.193     -4.239      0.000      -1.199      -0.441
+==============================================================================
+Finished with Participant 25.
+Percent processed: 62.07%
+Participant 26:
+  Best Probability: 0.78
+  Best Parameter: 50.0
+  Log-Likelihood on the training set: -0.6361573570776871
+  Log-Likelihood on the test set: -0.6609560061072598
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -42.845
+Date:                Tue, 21 Jan 2025   Deviance:                     0.096566
+Time:                        20:18:57   Pearson chi2:                   0.0964
+No. Iterations:                     4   Pseudo R-squ. (CS):           0.001505
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         -0.5243      0.279     -1.880      0.060      -1.071       0.022
+x1            -0.0712      0.184     -0.387      0.699      -0.432       0.289
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -64.120
+Date:                Tue, 21 Jan 2025   Deviance:                       128.24
+Time:                        20:18:57   Pearson chi2:                     99.6
+No. Iterations:                     4   Pseudo R-squ. (CS):            0.01241
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         -0.4131      0.276     -1.496      0.135      -0.954       0.128
+x1            -0.2086      0.189     -1.104      0.270      -0.579       0.162
+==============================================================================
+Finished with Participant 26.
+Percent processed: 65.52%
+Participant 27:
+  Best Probability: 0.9
+  Best Parameter: 6.0
+  Log-Likelihood on the training set: -0.5775629484236443
+  Log-Likelihood on the test set: -0.6713592629623057
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -39.657
+Date:                Tue, 21 Jan 2025   Deviance:                       1.8860
+Time:                        20:28:38   Pearson chi2:                     2.00
+No. Iterations:                     4   Pseudo R-squ. (CS):            0.09630
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.3206      0.315      4.190      0.000       0.703       1.938
+x1            -0.5966      0.193     -3.086      0.002      -0.976      -0.218
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -62.305
+Date:                Tue, 21 Jan 2025   Deviance:                       124.61
+Time:                        20:28:38   Pearson chi2:                     99.0
+No. Iterations:                     4   Pseudo R-squ. (CS):            0.04762
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.0397      0.295      3.519      0.000       0.461       1.619
+x1            -0.4056      0.186     -2.186      0.029      -0.769      -0.042
+==============================================================================
+Finished with Participant 27.
+Percent processed: 68.97%
+Participant 28:
+  Best Probability: 0.975
+  Best Parameter: 1.0
+  Log-Likelihood on the training set: -0.34528676489576393
+  Log-Likelihood on the test set: -0.34524869948314385
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -22.950
+Date:                Tue, 21 Jan 2025   Deviance:                       1.5365
+Time:                        20:40:14   Pearson chi2:                     1.79
+No. Iterations:                     6   Pseudo R-squ. (CS):             0.1430
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          3.3045      0.631      5.237      0.000       2.068       4.541
+x1            -1.0131      0.287     -3.534      0.000      -1.575      -0.451
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -36.815
+Date:                Tue, 21 Jan 2025   Deviance:                       73.630
+Time:                        20:40:14   Pearson chi2:                     91.7
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.1609
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          2.9752      0.552      5.394      0.000       1.894       4.056
+x1            -0.9950      0.262     -3.801      0.000      -1.508      -0.482
+==============================================================================
+Finished with Participant 28.
+Percent processed: 72.41%
+Participant 29:
+  Best Probability: 0.92
+  Best Parameter: 4.0
+  Log-Likelihood on the training set: -0.5067465449715914
+  Log-Likelihood on the test set: -0.611622697974819
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -35.610
+Date:                Tue, 21 Jan 2025   Deviance:                       1.7885
+Time:                        20:50:37   Pearson chi2:                     2.06
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.1438
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.8207      0.364      5.002      0.000       1.107       2.534
+x1            -0.7978      0.214     -3.728      0.000      -1.217      -0.378
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -52.884
+Date:                Tue, 21 Jan 2025   Deviance:                       105.77
+Time:                        20:50:37   Pearson chi2:                     97.5
+No. Iterations:                     3   Pseudo R-squ. (CS):             0.1364
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.7561      0.357      4.921      0.000       1.057       2.456
+x1            -0.7699      0.212     -3.640      0.000      -1.185      -0.355
+==============================================================================
+Finished with Participant 29.
+Percent processed: 75.86%
+Participant 3:
+  Best Probability: 0.95
+  Best Parameter: 10.0
+  Log-Likelihood on the training set: -0.5094944355423354
+  Log-Likelihood on the test set: -0.8377120716562908
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -33.216
+Date:                Tue, 21 Jan 2025   Deviance:                       1.0946
+Time:                        21:03:26   Pearson chi2:                     1.19
+No. Iterations:                     5   Pseudo R-squ. (CS):            0.06537
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.9701      0.390      5.048      0.000       1.205       2.735
+x1            -0.5429      0.212     -2.558      0.011      -0.959      -0.127
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -54.990
+Date:                Tue, 21 Jan 2025   Deviance:                       109.98
+Time:                        21:03:26   Pearson chi2:                     100.
+No. Iterations:                     4   Pseudo R-squ. (CS):            0.04526
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.5186      0.338      4.491      0.000       0.856       2.181
+x1            -0.4194      0.196     -2.139      0.032      -0.804      -0.035
+==============================================================================
+Finished with Participant 3.
+Percent processed: 79.31%
+Participant 30:
+  Best Probability: 0.95
+  Best Parameter: 0.02
+  Log-Likelihood on the training set: -0.37540371461418964
+  Log-Likelihood on the test set: -0.6883452354930293
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -30.558
+Date:                Tue, 21 Jan 2025   Deviance:                       10.591
+Time:                        21:16:16   Pearson chi2:                     12.9
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.2918
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          2.5378      0.455      5.580      0.000       1.646       3.429
+x1            -1.2986      0.260     -4.986      0.000      -1.809      -0.788
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -38.452
+Date:                Tue, 21 Jan 2025   Deviance:                       76.903
+Time:                        21:16:16   Pearson chi2:                     110.
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.3841
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          2.6070      0.469      5.564      0.000       1.689       3.525
+x1            -1.6302      0.303     -5.374      0.000      -2.225      -1.036
+==============================================================================
+Finished with Participant 30.
+Percent processed: 82.76%
+Participant 4:
+  Best Probability: 0.975
+  Best Parameter: 50.0
+  Log-Likelihood on the training set: -0.4686071145065533
+  Log-Likelihood on the test set: -0.5319072893843868
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -27.320
+Date:                Tue, 21 Jan 2025   Deviance:                      0.30467
+Time:                        21:29:07   Pearson chi2:                    0.310
+No. Iterations:                     5   Pseudo R-squ. (CS):           0.007222
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          2.1348      0.426      5.016      0.000       1.301       2.969
+x1            -0.2088      0.243     -0.859      0.391      -0.686       0.268
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -47.132
+Date:                Tue, 21 Jan 2025   Deviance:                       94.264
+Time:                        21:29:07   Pearson chi2:                     100.
+No. Iterations:                     4   Pseudo R-squ. (CS):          0.0001428
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.4894      0.343      4.339      0.000       0.817       2.162
+x1             0.0265      0.222      0.119      0.905      -0.409       0.462
+==============================================================================
+Finished with Participant 4.
+Percent processed: 86.21%
+Participant 5:
+  Best Probability: 0.87
+  Best Parameter: 0.02
+  Log-Likelihood on the training set: -0.40899241510923323
+  Log-Likelihood on the test set: -0.5178521580926702
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -40.438
+Date:                Tue, 21 Jan 2025   Deviance:                       16.217
+Time:                        21:41:47   Pearson chi2:                     17.1
+No. Iterations:                     4   Pseudo R-squ. (CS):             0.2215
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.3774      0.325      4.237      0.000       0.740       2.015
+x1            -0.9632      0.214     -4.503      0.000      -1.382      -0.544
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -39.911
+Date:                Tue, 21 Jan 2025   Deviance:                       79.822
+Time:                        21:41:47   Pearson chi2:                     94.9
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.4262
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          2.1561      0.418      5.153      0.000       1.336       2.976
+x1            -1.7036      0.302     -5.637      0.000      -2.296      -1.111
+==============================================================================
+Finished with Participant 5.
+Percent processed: 89.66%
+Participant 7:
+  Best Probability: 0.95
+  Best Parameter: 4.0
+  Log-Likelihood on the training set: -0.4047559197744771
+  Log-Likelihood on the test set: -0.45753364733412283
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -30.428
+Date:                Tue, 21 Jan 2025   Deviance:                       1.4534
+Time:                        21:54:34   Pearson chi2:                     1.65
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.1273
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          2.3568      0.434      5.427      0.000       1.506       3.208
+x1            -0.8210      0.234     -3.513      0.000      -1.279      -0.363
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -40.769
+Date:                Tue, 21 Jan 2025   Deviance:                       81.537
+Time:                        21:54:34   Pearson chi2:                     92.7
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.1693
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          2.6293      0.476      5.523      0.000       1.696       3.562
+x1            -0.9846      0.248     -3.969      0.000      -1.471      -0.498
+==============================================================================
+Finished with Participant 7.
+Percent processed: 93.10%
+Participant 8:
+  Best Probability: 0.84
+  Best Parameter: 50.0
+  Log-Likelihood on the training set: -0.6879678073353
+  Log-Likelihood on the test set: -0.7434201212855487
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -44.902
+Date:                Tue, 21 Jan 2025   Deviance:                      0.19577
+Time:                        22:06:08   Pearson chi2:                    0.196
+No. Iterations:                     3   Pseudo R-squ. (CS):           0.003714
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         -0.0685      0.265     -0.258      0.796      -0.588       0.451
+x1            -0.1047      0.172     -0.608      0.543      -0.442       0.233
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -69.184
+Date:                Tue, 21 Jan 2025   Deviance:                       138.37
+Time:                        22:06:08   Pearson chi2:                     100.
+No. Iterations:                     4   Pseudo R-squ. (CS):           0.002608
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         -0.0888      0.265     -0.335      0.738      -0.608       0.431
+x1             0.0871      0.171      0.510      0.610      -0.247       0.422
+==============================================================================
+Finished with Participant 8.
+Percent processed: 96.55%
+Participant 9:
+  Best Probability: 0.975
+  Best Parameter: 8.0
+  Log-Likelihood on the training set: -0.41978796606125385
+  Log-Likelihood on the test set: -0.7669630906726571
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -24.363
+Date:                Tue, 21 Jan 2025   Deviance:                      0.90328
+Time:                        22:15:58   Pearson chi2:                    0.963
+No. Iterations:                     5   Pseudo R-squ. (CS):            0.04602
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          2.7250      0.520      5.240      0.000       1.706       3.744
+x1            -0.5583      0.261     -2.142      0.032      -1.069      -0.047
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -45.525
+Date:                Tue, 21 Jan 2025   Deviance:                       91.050
+Time:                        22:15:58   Pearson chi2:                     96.8
+No. Iterations:                     5   Pseudo R-squ. (CS):            0.08635
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          2.1750      0.415      5.244      0.000       1.362       2.988
+x1            -0.6370      0.218     -2.927      0.003      -1.063      -0.210
+==============================================================================
+Finished with Participant 9.
+Percent processed: 100.00%
+All participants processed.
+Best Probability over all Participants: 0.9
+Best Parameter over all Participants: 12.0
+  Regression Summary (Model Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                 2900
+Model:                            GLM   Df Residuals:                     2898
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -1270.3
+Date:                Tue, 21 Jan 2025   Deviance:                       451.27
+Time:                        22:15:58   Pearson chi2:                     442.
+No. Iterations:                     4   Pseudo R-squ. (CS):            0.06061
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.1295      0.056     20.056      0.000       1.019       1.240
+x1            -0.4548      0.034    -13.259      0.000      -0.522      -0.388
+==============================================================================
+  Regression Summary (Experimental Data):
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                 2900
+Model:                            GLM   Df Residuals:                     2898
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -1808.1
+Date:                Tue, 21 Jan 2025   Deviance:                       3616.3
+Time:                        22:15:58   Pearson chi2:                 2.90e+03
+No. Iterations:                     4   Pseudo R-squ. (CS):            0.04839
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          1.0430      0.055     18.874      0.000       0.935       1.151
+x1            -0.4027      0.034    -11.862      0.000      -0.469      -0.336
+==============================================================================
