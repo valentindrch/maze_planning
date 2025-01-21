@@ -31,7 +31,6 @@ def one_hot_encoding(vector, probability):
     return softmax_values
 
 def reward_processing(reward_data, key, probability):
-    #folder_path = r'C:\Users\valen\OneDrive\Dokumente\7Semester\Bachelorarbeit\maze_planning\reward_data'
 
     # Generalized processing for all keys in reward_data
     reward_distributions = {}
@@ -68,14 +67,4 @@ def reward_processing(reward_data, key, probability):
         print(f"Key {key} not found in reward data")
         return None
     
-# Write rewards_0 to a json file
-
-def write_json(data, file_path):
-    with open(file_path, 'w') as file:
-        json.dump(data, file)
-
-def read_json(file_path):
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-    return data
 
