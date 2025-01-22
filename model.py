@@ -1,6 +1,9 @@
 from pgmpy.models import BayesianNetwork
 from pgmpy.factors.discrete import TabularCPD
+from pgmpy.inference import BeliefPropagation
 import numpy as np
+
+from sampling import Sampler
 
 class Dirichlet():
 
@@ -22,99 +25,169 @@ class Dirichlet():
     def get_full_cpd(self):  # the MAP (point estimate) is a simplification. When considering the full distribution it gets more complicated...
         pass
 
-model = BayesianNetwork([
-        ('a0', 's1'),
-        ('s1', 'a1'),
-        ('s1', 's2'),
-        ('a1', 's2'),
-        ('s2', 'a2'),
-        ('s2', 's3'),
-        ('a2', 's3'),
-        ('s3', 'o3')
-    ])
+class PlanningModel():
 
-param = 3.0
-# Initialize the Dirichlet priors
-alpha_a0 = Dirichlet(shape=(2, 1), params=np.array([[param], [param]]))  # Dirichlet prior for a0
-alpha_a1 = Dirichlet(shape=(2, 2), params=np.array([[param, param], [param, param]]))  # Dirichlet prior for a1
-alpha_a2 = Dirichlet(shape=(2, 4), params=np.array([[param, param, param, param], [param, param, param, param]]))  # Dirichlet prior for a2
-# P(a0)
-cpd_a0 = TabularCPD(variable='a0', 
-                    variable_card=2, 
-                    values=alpha_a0.get_MAP_cpd())
-# P(s1 | a0)
-cpd_s1_given_a0 = TabularCPD(
-    variable='s1',
-    variable_card=2,
-    evidence=['a0'],
-    evidence_card=[2],
-    values=[
-        [0.99, 0.01],  
-        [0.01, 0.99]   
-    ]
-)
-# P(a1 | s1)
-cpd_a1_given_s1 = TabularCPD(
-    variable='a1',
-    variable_card=2,
-    evidence=['s1'],
-    evidence_card=[2],
-    values=alpha_a1.get_MAP_cpd()
-)
-# P(s2 | s1, a1)
-cpd_s2_given_s1_a1 = TabularCPD(
-    variable='s2',
-    variable_card=4,
-    evidence=['s1', 'a1'],
-    evidence_card=[2, 2],
-    values=[
-        [0.99, 0.01, 0.0, 0.0],  
-        [0.01, 0.99, 0.0, 0.0],  
-        [0.0, 0.0, 0.99, 0.01],  
-        [0.0, 0.0, 0.01, 0.99]   
-    ]
-)
-# P(a2 | s2)
-cpd_a2_given_s2 = TabularCPD(variable='a2', 
-                            variable_card=2,
-                            evidence=['s2'],
-                            evidence_card=[4],
-                            values=alpha_a2.get_MAP_cpd())
-# P(s3 | s2, a2) with 8 states in s3
-cpd_s3_given_s2_a2 = TabularCPD(
-    variable='s3',
-    variable_card=8,
-    evidence=['s2', 'a2'],
-    evidence_card=[4, 2],
-    values=[
-        [0.99, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  
-        [0.01, 0.99, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  
-        [0.0, 0.0, 0.99, 0.01, 0.0, 0.0, 0.0, 0.0],  
-        [0.0, 0.0, 0.01, 0.99, 0.0, 0.0, 0.0, 0.0],  
-        [0.0, 0.0, 0.0, 0.0, 0.99, 0.01, 0.0, 0.0],  
-        [0.0, 0.0, 0.0, 0.0, 0.01, 0.99, 0.0, 0.0],  
-        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.99, 0.01],  
-        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.99]   
-    ]
-)
-model.add_cpds(cpd_a0, cpd_s1_given_a0, cpd_a1_given_s1, cpd_s2_given_s1_a1, cpd_a2_given_s2, cpd_s3_given_s2_a2)
+    def __init__(self, alpha, rho):
+        self.alpha = alpha  # learning rate
+        self.rho = rho  # focus/planning utility
+        self.model = BayesianNetwork([
+            ('a0', 's1'),
+            ('s1', 'a1'),
+            ('s1', 's2'),
+            ('a1', 's2'),
+            ('s2', 'a2'),
+            ('s2', 's3'),
+            ('a2', 's3'),
+            ('s3', 'o3')
+        ])
+        self.node_list = [node for node in self.model.nodes if node != 'o3']
 
-# Create function to change goal
-def def_goal(index, value=.95):
+        # Initialize the Dirichlet priors
+        self.alpha_a0 = Dirichlet(shape=(2, 1), params=np.array([[self.alpha], [self.alpha]]))  # Dirichlet prior for a0
+        self.alpha_a1 = Dirichlet(shape=(2, 2), params=np.array([[self.alpha, self.alpha], 
+                                                                 [self.alpha, self.alpha]]))  # Dirichlet prior for a1
+        self.alpha_a2 = Dirichlet(shape=(2, 4), params=np.array([[self.alpha, self.alpha, self.alpha, self.alpha], 
+                                                                 [self.alpha, self.alpha, self.alpha, self.alpha]]))  # Dirichlet prior for a2
+        # P(a0)
+        cpd_a0 = TabularCPD(variable='a0', 
+                            variable_card=2, 
+                            values=self.alpha_a0.get_MAP_cpd())
+        # P(s1 | a0)
+        cpd_s1_given_a0 = TabularCPD(
+            variable='s1',
+            variable_card=2,
+            evidence=['a0'],
+            evidence_card=[2],
+            values=[
+                [0.99, 0.01],  
+                [0.01, 0.99]   
+            ]
+        )
+        # P(a1 | s1)
+        cpd_a1_given_s1 = TabularCPD(
+            variable='a1',
+            variable_card=2,
+            evidence=['s1'],
+            evidence_card=[2],
+            values=self.alpha_a1.get_MAP_cpd()
+        )
+        # P(s2 | s1, a1)
+        cpd_s2_given_s1_a1 = TabularCPD(
+            variable='s2',
+            variable_card=4,
+            evidence=['s1', 'a1'],
+            evidence_card=[2, 2],
+            values=[
+                [0.99, 0.01, 0.0, 0.0],  
+                [0.01, 0.99, 0.0, 0.0],  
+                [0.0, 0.0, 0.99, 0.01],  
+                [0.0, 0.0, 0.01, 0.99]   
+            ]
+        )
+        # P(a2 | s2)
+        cpd_a2_given_s2 = TabularCPD(variable='a2', 
+                                    variable_card=2,
+                                    evidence=['s2'],
+                                    evidence_card=[4],
+                                    values=self.alpha_a2.get_MAP_cpd())
+        # P(s3 | s2, a2) with 8 states in s3
+        cpd_s3_given_s2_a2 = TabularCPD(
+            variable='s3',
+            variable_card=8,
+            evidence=['s2', 'a2'],
+            evidence_card=[4, 2],
+            values=[
+                [0.99, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  
+                [0.01, 0.99, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  
+                [0.0, 0.0, 0.99, 0.01, 0.0, 0.0, 0.0, 0.0],  
+                [0.0, 0.0, 0.01, 0.99, 0.0, 0.0, 0.0, 0.0],  
+                [0.0, 0.0, 0.0, 0.0, 0.99, 0.01, 0.0, 0.0],  
+                [0.0, 0.0, 0.0, 0.0, 0.01, 0.99, 0.0, 0.0],  
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.99, 0.01],  
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.99]   
+            ]
+        )
+        self.model.add_cpds(cpd_a0, cpd_s1_given_a0, cpd_a1_given_s1, cpd_s2_given_s1_a1, cpd_a2_given_s2, cpd_s3_given_s2_a2)
 
-    # Make cpd array
-    arr = np.zeros((2, 8))
-    arr[0, :] = 1 - value
-    arr[0, index] = value
-    arr[1, :] = value
-    arr[1, index] = 1 - value
+        # Create function to change goal
+    
+    def def_goal(self, index):
+    
+        # Make cpd array
+        arr = np.zeros((2, 8))
+        arr[0, :] = 1 - self.rho
+        arr[0, index] = self.rho
+        arr[1, :] = self.rho
+        arr[1, index] = 1 - self.rho
 
-    # Add to model
-    cpd_o3_given_s3 = TabularCPD(
-        variable='o3',
-        variable_card=2,
-        evidence=['s3'],
-        evidence_card=[8],
-        values=arr,
-    )
-    model.add_cpds(cpd_o3_given_s3)
+        # Add to model
+        cpd_o3_given_s3 = TabularCPD(
+            variable='o3',
+            variable_card=2,
+            evidence=['s3'],
+            evidence_card=[8],
+            values=arr,
+        )
+        self.model.add_cpds(cpd_o3_given_s3)
+
+    def plan(self, goal):
+
+        # Define p(o3 | s3)
+        self.def_goal(goal)
+
+        # Inference
+        inference = BeliefPropagation(self.model)
+        self.prior = inference.query(self.node_list).values
+        self.posterior = inference.query(self.node_list, evidence={'o3': 0}).values
+
+        # Get relevant values
+        self.posterior_a = self.posterior.sum(axis=(1, 3, 5))
+        self.posterior_s3 = self.posterior.sum(axis=(0, 1, 2, 3, 4))
+        self.path_pred = self.posterior_a.ravel()
+
+        self.posterior_a0 = self.posterior.sum(axis=tuple(range(1, 6)))  # 'a0'
+        self.posterior_a1 = self.posterior.sum(axis=(0, 3, 4, 5)).T  # sorry, making this way harder to read (['a1', 's1'])
+        self.posterior_a2 = self.posterior.sum(axis=(0, 1, 2, 5)).T
+
+    def sample(self, goal, threshold=1e-2):
+
+        # Define p(o3 | s3)
+        self.def_goal(goal)
+
+        # Inference
+        inference = BeliefPropagation(self.model)
+        self.prior = inference.query(self.node_list).values
+        sampling = Sampler(self.model, self.prior, threshold)
+        self.posterior, self.n = sampling.query()
+
+        # Get relevant values
+        self.posterior_a = self.posterior.sum(axis=(1, 3, 5))
+        self.posterior_s3 = self.posterior.sum(axis=(0, 1, 2, 3, 4))
+        self.path_pred = self.posterior_a.ravel()
+
+    def learn(self):
+
+        self.alpha_a0.infer(self.posterior_a0.reshape(-1, 1))
+        self.alpha_a1.infer(self.posterior_a1)
+        self.alpha_a2.infer(self.posterior_a2)
+
+        # Update the CPDs of the model
+        cpd_a0 = TabularCPD('a0', 2, self.alpha_a0.get_MAP_cpd())
+        cpd_a1_given_s1 = TabularCPD(
+            variable='a1',
+            variable_card=2,
+            evidence=['s1'],
+            evidence_card=[2],
+            values=self.alpha_a1.get_MAP_cpd()
+        )
+        cpd_a2_given_s2 = TabularCPD(
+            variable='a2', 
+            variable_card=2, 
+            evidence=['s2'],
+            evidence_card=[4],
+            values=self.alpha_a2.get_MAP_cpd()
+        )
+        self.model.add_cpds(cpd_a0, cpd_a1_given_s1, cpd_a2_given_s2)
+
+    def get_it_measures(self):
+        pass

@@ -17,7 +17,7 @@ class Sampler():
         self.trace = [self.prior.copy()]
         self.sampled_belief = self.prior.copy()
 
-    def query(self, query_vars, evidence, max_samples=None):
+    def query(self, max_samples=None):
 
         kl_divs = np.ones(50)  # specify convergence window (no large influence)
         
