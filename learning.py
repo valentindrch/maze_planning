@@ -16,6 +16,8 @@ from loading_experiment_data import load_maze_data
 # Remove all existing handlers
 for handler in logging.getLogger().handlers[:]:
     logging.getLogger().removeHandler(handler)
+import pickle
+from scipy.stats import entropy
 
 # Suppress warnings from pgmpy
 logging.getLogger("pgmpy").setLevel(logging.ERROR)
@@ -34,8 +36,6 @@ logging.basicConfig(
         logging.StreamHandler()  # Print to console
     ]
 )
-
-
 
 # Define Dirichlet distribution
 class Dirichlet():
@@ -71,24 +71,20 @@ def trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_o3):
     
     model.add_cpds(cpd_o3_given_s3)
 
-    # Perform inference
-    inference = BeliefPropagation(model)
-
-    # Compute model priors for all states of s3; prior prediction of all paths
-    prior_s3 = inference.query(['s3'])
-
     # Infer posteriors P(a0 | o3=0), P(a1 | o3=0), P(a2 | o3=0)
-    posterior_a0 = inference.query(['a0'], evidence={'o3': 0})  # we always observe B=0 (like "reward")
-    posterior_a1 = inference.query(['a1', 's1'], evidence={'o3': 0})
-    posterior_a2 = inference.query(['a2', 's2'], evidence={'o3': 0})
+    nodes = [node for node in model.nodes if node != 'o3']
+    inference = BeliefPropagation(model)
+    prior = inference.query(nodes).values
+    posterior = inference.query(nodes, evidence={'o3': 0}).values  # might be a bit more efficient to only call `query` once
+    posterior_a0 = posterior.sum(axis=tuple(range(1, 6)))  # 'a0'
+    posterior_a1 = posterior.sum(axis=(0, 3, 4, 5)).T  # sorry, making this way harder to read (['a1', 's1'])
+    posterior_a2 = posterior.sum(axis=(0, 1, 2, 5)).T  # ['a2', 's2']
+    posterior_s3 = posterior.sum(axis=tuple(range(0, 5)))  # 's3'
 
-    # Compute model posteriors for all states of s3; posterior prediction of all paths
-    posterior_s3 = inference.query(['s3'], evidence={'o3': 0})
-
-    # Infer hyperprior P(a0), P(a1|s1), P(a2|s2) based on the posteriors; update the Dirichlet priors
-    alpha_a0.infer(posterior_a0.values.reshape(2, 1))
-    alpha_a1.infer(posterior_a1.values.reshape(2, 2))
-    alpha_a2.infer(posterior_a2.values.reshape(2, 4))
+    # Infer hyperprior P(a0), P(a1|s1), P(a2|s2) based on the posteriors
+    alpha_a0.infer(posterior_a0.reshape(2, 1))
+    alpha_a1.infer(posterior_a1.reshape(2, 2))
+    alpha_a2.infer(posterior_a2.reshape(2, 4))
 
     # Update the CPDs of the model
     cpd_a0 = TabularCPD('a0', 2, alpha_a0.get_MAP_cpd())
@@ -107,7 +103,7 @@ def trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_o3):
 
     model.add_cpds(cpd_a0, cpd_a1_given_s1, cpd_a2_given_s2)
 
-    return prior_s3, posterior_s3
+    return prior, posterior, posterior_s3
 
 # Initialization of the model
 # Learning and evaluation (prediction) of the model
@@ -234,6 +230,8 @@ def train_model(rewards_participant, param):
     prior_dist_3 = np.array([])
 
     post_dist = []  # Start with an empty list
+    priors = []
+    it_measures = {'complexity': [], 'error': [], 'surprise': []}
 
     for i in range(len(rewards_participant)):
         # Optimal path of the trial:
@@ -241,7 +239,15 @@ def train_model(rewards_participant, param):
 
          # Let the model learn from the reward of trial i
         reward_trial = rewards_participant[i]['distribution']
-        prior_prediction, posterior_prediction = trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_trial)
+        prior_prediction, posterior_prediction, posterior_s3 = trial_learning(model, alpha_a0, alpha_a1, alpha_a2, reward_trial)
+        priors.append(prior_prediction)
+
+        # Calculate IT metrics
+        complexity = entropy(posterior_prediction.flatten(), prior_prediction.flatten())
+        error = entropy(posterior_s3) + entropy(posterior_s3, model.get_cpds()[6].values[0, :])
+        it_measures['complexity'].append(complexity)
+        it_measures['error'].append(error)
+        it_measures['surprise'].append(complexity + error)
 
         # Prior and Posterior model predictions for the optimal path
         prior_optimal_path = prior_prediction.values[optimal_path]
@@ -250,7 +256,6 @@ def train_model(rewards_participant, param):
         # Distance to the habitual path
         dist = rewards_participant[i]['extra_elements'][0]
 
-        
         post_dist.append((post_optimal_path, dist))  # Append a tuple
 
         # Sort the predicted probabilities of the optimal path based on the distance to the habitual path 
@@ -270,7 +275,7 @@ def train_model(rewards_participant, param):
             post_dist_3 = np.append(post_dist_3, post_optimal_path)
             prior_dist_3 = np.append(prior_dist_3, prior_optimal_path)
 
-    return post_dist, post_dist_0, post_dist_1, post_dist_2, post_dist_3
+    return np.array(priors), habitual_path, post_dist, post_dist_0, post_dist_1, post_dist_2, post_dist_3, it_measures
         
 # Splits the experimental data of one participant into training and testing sets
 # For every distance to the habitual path {0, 1, 2, 3} the test set needs contain 3 trials for each distance > 0 and 
@@ -352,7 +357,6 @@ def compute_log_likelihood(predictions, actual_choices):
     log_likelihood /= len(actual_choices)
 
     return log_likelihood
-
 
 def k_cross_validation(predictions, actual_choices, k=5):
     """
