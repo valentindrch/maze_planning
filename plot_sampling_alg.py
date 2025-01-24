@@ -8,7 +8,7 @@ from sampling import Sampler
 from model import PlanningModel
 
 # Load priors from pickle file
-with open('priors.pkl', 'rb') as f:
+with open('./data_files/priors.pkl', 'rb') as f:
     priors = pickle.load(f)
 
 # Sample for different goals
@@ -39,9 +39,9 @@ if False:
                 data['error'].append(error)
 
     data = pd.DataFrame(data)
-    data.to_csv('sampling_illustration_results.csv')
+    data.to_csv('./data_files/sampling_illustration_results.csv')
 else:
-    data = pd.read_csv('sampling_illustration_results.csv')
+    data = pd.read_csv('./data_files/sampling_illustration_results.csv')
 
 # Create figure with three subplots
 fig, ((ax1, ax2, ax3), (ax4, ax5, ax6), (ax7, ax8, ax9)) = plt.subplots(3, 3, figsize=(15, 8))
@@ -85,5 +85,7 @@ for t, ax in zip([0, 5, 50], [ax7, ax8, ax9]):
 
 plt.tight_layout()
 plt.show()
+
+fig.savefig('./figs/sampling_alg.pdf')
 
 a = 1
