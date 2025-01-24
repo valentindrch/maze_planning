@@ -10,13 +10,14 @@ from model_fitting_utils import split_data, k_cross_validation
 logging.getLogger("pgmpy").setLevel(logging.ERROR)
 
 # Define Grid Search parameters
-alphas = np.logspace(-4, 4, 5, base=np.e).round(2)  # from .02 to 55 ish
-rhos = np.linspace(.7, .99, 5)
+alphas = np.logspace(-4, 4, 20, base=np.e).round(2)  # from .02 to 55 ish
+rhos = np.linspace(.7, .99, 20)
 
 # Load data
 exp_data = pd.read_csv('maze_data.csv')
 exp_data['subset'] = ''
 exp_data['full_prediction'] = np.nan
+exp_data['full_prior_habit'] = np.nan
 exp_data['full_ll'] = np.nan
 exp_data['full_alpha'] = np.nan
 exp_data['full_rho'] = np.nan
@@ -46,9 +47,7 @@ def run_model(data, alpha, rho, model_type='full'):
     model = PlanningModel(alpha=alpha, rho=rho)
 
     # Iterate through trials
-    predictions = {'trial': [], 'prediction': []}
-    priors = np.empty(0)
-    posteriors = np.empty(0)
+    predictions = {'trial': [], 'prediction': [], 'prior': []}
     for trial in data['trial']._values:
         
         goal = data.loc[data['trial'] == trial, 'optimal_path']
@@ -66,11 +65,13 @@ def run_model(data, alpha, rho, model_type='full'):
                 model.plan(goal)
                 predictions['prediction'].append(float(model.path_pred[goal]))
 
+        prior_a = model.prior.sum(axis=(1, 3, 5)).ravel()
+        prior_habit = prior_a[np.unique(data['habit_path'])[0]]
+        predictions['prior'].append(prior_habit)
+
         predictions['trial'].append(trial)
-        
 
     return pd.DataFrame(predictions)
-
 
 def fit_partipant(id, alphas, rhos):
 
@@ -131,6 +132,7 @@ def predict(parameters):
         pred_vals = predictions['prediction']._values
 
         exp_data.loc[exp_data['id'] == i, 'full_prediction'] = pred_vals
+        exp_data.loc[exp_data['id'] == i, 'full_prior_habit'] = predictions['prior']._values
         exp_data.loc[exp_data['id'] == i, 'full_ll'] = np.log(pred_vals) * true_vals + np.log(1 - pred_vals) * (1 - true_vals)
         exp_data.loc[exp_data['id'] == i, 'full_alpha'] = alpha
         exp_data.loc[exp_data['id'] == i, 'full_rho'] = rho
@@ -161,7 +163,7 @@ def predict(parameters):
 
 # Fit parameters
 if False:
-    results = Parallel(n_jobs=8)(
+    results = Parallel(n_jobs=9)(
             delayed(fit_partipant)(id, alphas, rhos) 
             for id in ids
         )

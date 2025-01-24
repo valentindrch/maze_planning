@@ -1,7 +1,8 @@
+import numpy as np
 from pgmpy.models import BayesianNetwork
 from pgmpy.factors.discrete import TabularCPD
 from pgmpy.inference import BeliefPropagation
-import numpy as np
+from scipy.stats import entropy
 
 from sampling import Sampler
 
@@ -149,14 +150,17 @@ class PlanningModel():
         self.posterior_a1 = self.posterior.sum(axis=(0, 3, 4, 5)).T  # sorry, making this way harder to read (['a1', 's1'])
         self.posterior_a2 = self.posterior.sum(axis=(0, 1, 2, 5)).T
 
-    def sample(self, goal, threshold=1e-2):
+    def sample(self, goal, threshold=1e-2, prior=None):
 
         # Define p(o3 | s3)
         self.def_goal(goal)
 
         # Inference
-        inference = BeliefPropagation(self.model)
-        self.prior = inference.query(self.node_list).values
+        if prior is None:
+            inference = BeliefPropagation(self.model)
+            self.prior = inference.query(self.node_list).values
+        else:
+            self.prior = prior  # enable to set prior by hand
         sampling = Sampler(self.model, self.prior, threshold)
         self.posterior, self.n = sampling.query()
 
@@ -190,4 +194,9 @@ class PlanningModel():
         self.model.add_cpds(cpd_a0, cpd_a1_given_s1, cpd_a2_given_s2)
 
     def get_it_measures(self):
-        pass
+
+        self.complexity = entropy(self.posterior.flatten(), self.prior.flatten())
+        self.error = entropy(self.posterior_s3) + entropy(self.posterior_s3, self.model.get_cpds()[6].values[0, :])
+        self.surprise = self.complexity + self.error
+
+        return self.complexity, self.error, self.surprise
