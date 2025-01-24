@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 
-df = pd.read_csv('maze_data_fitted.csv')
+df = pd.read_csv('./data_files/maze_data_fitted.csv')
 df = df.loc[df['subset'] == 'test', :]
 
 bic_full = 2 * np.log(len(df)) - 2 * df['full_ll'].sum()

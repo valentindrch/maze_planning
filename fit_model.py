@@ -14,10 +14,13 @@ alphas = np.logspace(-4, 4, 20, base=np.e).round(2)  # from .02 to 55 ish
 rhos = np.linspace(.7, .99, 20)
 
 # Load data
-exp_data = pd.read_csv('maze_data.csv')
+exp_data = pd.read_csv('./data_files/maze_data.csv')
 exp_data['subset'] = ''
 exp_data['full_prediction'] = np.nan
 exp_data['full_prior_habit'] = np.nan
+exp_data['full_surprise'] = np.nan
+exp_data['full_cost'] = np.nan
+exp_data['full_error'] = np.nan
 exp_data['full_ll'] = np.nan
 exp_data['full_alpha'] = np.nan
 exp_data['full_rho'] = np.nan
@@ -25,6 +28,9 @@ exp_data['learn_prediction'] = np.nan
 exp_data['learn_ll'] = np.nan
 exp_data['learn_alpha'] = np.nan
 exp_data['plan_prediction'] = np.nan
+exp_data['plan_surprise'] = np.nan
+exp_data['plan_cost'] = np.nan
+exp_data['plan_error'] = np.nan
 exp_data['plan_ll'] = np.nan
 exp_data['plan_rho'] = np.nan
 ids = np.unique(exp_data['id'])
@@ -47,7 +53,7 @@ def run_model(data, alpha, rho, model_type='full'):
     model = PlanningModel(alpha=alpha, rho=rho)
 
     # Iterate through trials
-    predictions = {'trial': [], 'prediction': [], 'prior': []}
+    predictions = {'trial': [], 'prediction': [], 'prior': [], 'surprise': [], 'cost': [], 'error': []}
     for trial in data['trial']._values:
         
         goal = data.loc[data['trial'] == trial, 'optimal_path']
@@ -55,15 +61,27 @@ def run_model(data, alpha, rho, model_type='full'):
         match model_type:
             case 'full':
                 model.plan(goal)
+                cost, error, surprise =  model.get_it_measures()
                 model.learn()
                 predictions['prediction'].append(float(model.path_pred[goal]))
+                predictions['surprise'].append(surprise)
+                predictions['cost'].append(cost)
+                predictions['error'].append(error)
             case 'learn_only':
                 model.plan(goal)
+                cost, error, surprise =  model.get_it_measures()  # TODO  
                 model.learn()
                 predictions['prediction'].append(float(model.prior.sum(axis=(1, 3, 5)).ravel()[goal]))
+                predictions['surprise'].append(surprise)
+                predictions['cost'].append(cost)
+                predictions['error'].append(error)
             case 'plan_only':
                 model.plan(goal)
+                cost, error, surprise =  model.get_it_measures()
                 predictions['prediction'].append(float(model.path_pred[goal]))
+                predictions['surprise'].append(surprise)
+                predictions['cost'].append(cost)
+                predictions['error'].append(error)
 
         prior_a = model.prior.sum(axis=(1, 3, 5)).ravel()
         prior_habit = prior_a[np.unique(data['habit_path'])[0]]
@@ -133,6 +151,9 @@ def predict(parameters):
 
         exp_data.loc[exp_data['id'] == i, 'full_prediction'] = pred_vals
         exp_data.loc[exp_data['id'] == i, 'full_prior_habit'] = predictions['prior']._values
+        exp_data.loc[exp_data['id'] == i, 'full_surprise'] = predictions['surprise']._values
+        exp_data.loc[exp_data['id'] == i, 'full_cost'] = predictions['cost']._values
+        exp_data.loc[exp_data['id'] == i, 'full_error'] = predictions['error']._values
         exp_data.loc[exp_data['id'] == i, 'full_ll'] = np.log(pred_vals) * true_vals + np.log(1 - pred_vals) * (1 - true_vals)
         exp_data.loc[exp_data['id'] == i, 'full_alpha'] = alpha
         exp_data.loc[exp_data['id'] == i, 'full_rho'] = rho
@@ -157,6 +178,9 @@ def predict(parameters):
         pred_vals = predictions['prediction']._values
 
         exp_data.loc[exp_data['id'] == i, 'plan_prediction'] = pred_vals
+        exp_data.loc[exp_data['id'] == i, 'plan_surprise'] = predictions['surprise']._values
+        exp_data.loc[exp_data['id'] == i, 'plan_cost'] = predictions['cost']._values
+        exp_data.loc[exp_data['id'] == i, 'plan_error'] = predictions['error']._values
         exp_data.loc[exp_data['id'] == i, 'plan_ll'] = np.log(pred_vals) * true_vals + np.log(1 - pred_vals) * (1 - true_vals)
         exp_data.loc[exp_data['id'] == i, 'plan_alpha'] = alpha
         exp_data.loc[exp_data['id'] == i, 'plan_rho'] = rho
@@ -169,14 +193,14 @@ if False:
         )
     results = pd.concat(results)
     results = results.reset_index(drop=True)
-    results.to_csv('grid_search_result.csv')
+    results.to_csv('./data_files/grid_search_result.csv')
 else:
-    results = pd.read_csv('grid_search_result.csv')
+    results = pd.read_csv('./data_files/grid_search_result.csv')
 
 # Make predictions
 opt_params = results.loc[results.groupby(['id', 'model_type'])['ll'].idxmax()]
 predict(opt_params)
-exp_data.to_csv('maze_data_fitted.csv')
+exp_data.to_csv('./data_files/maze_data_fitted.csv')
 
 
 a = 0

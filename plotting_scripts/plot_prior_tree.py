@@ -4,9 +4,8 @@ import pickle
 import numpy as np
 
 # Load the priors from the pickle file
-with open('priors.pkl', 'rb') as f:
+with open('./data_files/priors.pkl', 'rb') as f:
     priors = pickle.load(f)
-
 
 def plot_tree(t, ax):
 
@@ -67,7 +66,7 @@ def plot_tree(t, ax):
     ax.axis('off')
 
 # Create figure with 4 subplots - trees and colorbar
-fig = plt.figure(figsize=(16, 5))
+fig = plt.figure(figsize=(12, 3))
 gs = fig.add_gridspec(1, 4, width_ratios=[4, 4, 4, 0.3])
 
 # Create axes for trees and colorbar
@@ -89,5 +88,7 @@ cbar = plt.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=plt.cm.inferno),
 
 plt.tight_layout()
 plt.show()
+
+fig.savefig('./figs/prior_trees.pdf')
 
 a = 1
