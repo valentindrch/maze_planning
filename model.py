@@ -33,15 +33,17 @@ class PlanningModel():
         self.rho = rho  # focus/planning utility
         self.model = BayesianNetwork([
             ('a0', 's1'),
+            ('s1', 'o1'),
             ('s1', 'a1'),
             ('s1', 's2'),
             ('a1', 's2'),
+            ('s2', 'o2'),
             ('s2', 'a2'),
             ('s2', 's3'),
             ('a2', 's3'),
             ('s3', 'o3')
         ])
-        self.node_list = [node for node in self.model.nodes if node != 'o3']
+        self.node_list = [node for node in self.model.nodes if node not in ['o1', 'o2', 'o3']]
 
         # Initialize the Dirichlet priors
         self.alpha_a0 = Dirichlet(shape=(2, 1), params=np.array([[self.alpha], [self.alpha]]))  # Dirichlet prior for a0
