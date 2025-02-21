@@ -13,6 +13,11 @@ logging.getLogger("pgmpy").setLevel(logging.ERROR)
 alphas = np.logspace(-4, 4, 20, base=np.e).round(2)  # from .02 to 55 ish
 rhos = np.linspace(.7, .99, 20)
 
+# Load reward data
+
+
+
+
 # Load data
 exp_data = pd.read_csv('./data_files/maze_data.csv')
 exp_data['subset'] = ''
@@ -58,9 +63,13 @@ def run_model(data, alpha, rho, model_type='full'):
         
         goal = data.loc[data['trial'] == trial, 'optimal_path']
 
+        # Get path arrays
+        paths_reward = data.loc
+
+
         match model_type:
             case 'full':
-                model.plan(goal)
+                model.plan(goal, maxima)
                 cost, error, surprise =  model.get_it_measures()
                 model.learn()
                 predictions['prediction'].append(float(model.path_pred[goal]))
@@ -68,7 +77,7 @@ def run_model(data, alpha, rho, model_type='full'):
                 predictions['cost'].append(cost)
                 predictions['error'].append(error)
             case 'learn_only':
-                model.plan(goal)
+                model.plan(goal, maxima)
                 cost, error, surprise =  model.get_it_measures()  # TODO  
                 model.learn()
                 predictions['prediction'].append(float(model.prior.sum(axis=(1, 3, 5)).ravel()[goal]))
@@ -76,7 +85,7 @@ def run_model(data, alpha, rho, model_type='full'):
                 predictions['cost'].append(cost)
                 predictions['error'].append(error)
             case 'plan_only':
-                model.plan(goal)
+                model.plan(goal, maxima)
                 cost, error, surprise =  model.get_it_measures()
                 predictions['prediction'].append(float(model.path_pred[goal]))
                 predictions['surprise'].append(surprise)
@@ -186,8 +195,8 @@ def predict(parameters):
         exp_data.loc[exp_data['id'] == i, 'plan_rho'] = rho
 
 # Fit parameters
-if False:
-    results = Parallel(n_jobs=9)(
+if True:
+    results = Parallel(n_jobs=3)(
             delayed(fit_partipant)(id, alphas, rhos) 
             for id in ids
         )

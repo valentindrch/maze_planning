@@ -121,3 +121,51 @@ def k_cross_validation(predictions, actual_choices, k=5):
     # Compute the mean normalized log-likelihood across folds
     mean_normalized_log_likelihood = np.mean(normalized_log_likelihoods)
     return mean_normalized_log_likelihood
+
+def transform_to_binary_tree(matrix):
+    tree = {
+        'Level 0': [0],  # Proxy reward for the empty layer 0
+        'Level 1': [matrix[0][0], matrix[4][0]],  # state s1: l & r
+        'Level 2': [matrix[0][1], matrix[2][1], matrix[4][1], matrix[6][1]],  # state s2: ll, lr, rl, rr
+        'Level 3': [matrix[0][2], matrix[1][2], matrix[2][2], matrix[3][2],
+                    matrix[4][2], matrix[5][2], matrix[6][2], matrix[7][2]]  # state s3: lll, llr, ..., rrr
+    }
+    return tree
+
+def max_rewards(rewards):
+    '''
+    Input: A List of 8 arrays which depict the reward distribution for a specific trial.
+    Output: Returns the states on which a maximum reward lies. 
+
+    Example:
+    Input: 
+            [[3. 0. 1.]
+            [3. 0. 1.]
+            [3. 2. 2.]
+            [3. 2. 2.]
+            [3. 2. 2.]
+            [3. 2. 3.]
+            [3. 2. 2.]
+            [3. 2. 2.]]
+
+    Output: l in s1, r in s1, rlr in s3
+    '''
+    tree = transform_to_binary_tree(rewards)
+    max_reward = max(sum(tree.values(), []))
+
+    state_labels = {
+        'Level 1': ['l', 'r'],
+        'Level 2': ['ll', 'lr', 'rl', 'rr'],
+        'Level 3': ['lll', 'llr', 'lrl', 'lrr', 'rll', 'rlr', 'rrl', 'rrr']
+    }
+
+    max_states = []
+    for level, rewards in tree.items():
+        if level == 'Level 0':
+            continue
+        for i, reward in enumerate(rewards):
+            if reward == max_reward:
+                max_states.append((state_labels[level][i], reward))
+
+    return max_states
+

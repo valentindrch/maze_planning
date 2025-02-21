@@ -1,0 +1,211 @@
+---
+title: "Analyse"
+output: html_document
+date: "2024-01-15"
+---
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+# Daten laden
+```{r}
+data <- read.csv("./data_files/maze_data.csv", header = T)
+```
+
+# Daten anschauen
+```{r}
+# Wie oft haben Probanden den optimalen Pfad gewählt?
+mean(data$optimality)
+
+# Wie oft hat jeder Proband den optimalen Pfad gewählt?
+agg <- aggregate(optimality ~ id, data=data, mean)
+agg <- agg[order(agg$optimality), ]
+
+# Wie oft war welcher Pfad der Habit-Pfad?
+hist(data$habit_path)
+
+# Wie oft war welcher Pfad optimal?
+hist(data$optimal_path)
+
+# Wie oft wurde welcher Pfad gewählt?
+hist(data$chosen_path)
+
+# Wie oft hat jeder Proband welchen Pfad gewählt? (in rot markiert der Habit Pfad)
+for (i in 1:30){
+  colors <- rep("grey", 8)
+  colors[mean(data[data$id == i, 'habit_path'])] <- "red"
+  hist(data[data$id == i, 'chosen_path'], col = colors, main = i)
+} # Probanden 5, 19 zeigen auffälliges Antwortverhalten
+
+
+# Wie oft hat jeder Proband den Habit-Pfad gewählt
+data$habit_chosen <- data$chosen_path == data$habit_path
+aggregate(habit_chosen ~ id, data=data, mean)
+```
+
+# Hypothese 1
+```{r}
+# Wie oft wurde in den habit_test_trials der Habit Pfad gewählt? (abhängig vom Trial-Count) # nolint # nolint
+data_h1 <- data[data$habit_test_trial == 1, c("optimality", "n_habit_test_trial", "id")] # nolint
+aggregate(optimality ~ n_habit_test_trial, data=data_h1, sum)
+
+# Logistische Regression
+model_h1 <- glm(optimality ~ n_habit_test_trial, data = data_h1, family = "binomial")
+summary(model_h1)
+
+# Plotte logistische Regression
+ggplot(data=data_h1, aes(x=as.integer(as.factor(n_habit_test_trial)), y=as.integer(optimality))) + # nolint: infix_spaces_linter.
+  geom_point(position = position_jitter(w = 0.3, h = 0)) +
+  stat_smooth(method = "glm", color="red", se=TRUE, 
+                method.args = list(family=binomial)) +
+  stat_summary(fun = "mean", geom = "point", aes(group = 1), color = "red")
+```
+
+# Hypothese 2
+```{r}
+# Was sind eigentlich die Test-Daten?
+data_h2 <- data[data$trial >= 30 & data$trial <= 80 & data$distance != 0,]
+data_h2_a <- data[data$trial <= 30 & data$distance != 0,]
+data_h2_b <- data[data$trial >= 80 & data$distance != 0,]
+#data[data$trial >= 40,] %>% group_by(id, distance) %>% summarise(Count = n())  # überprüfen
+
+# Sinkt die Häufigkeit optimaler Entscheidungen wenn die Distanz zur Habit steigt?
+aggregate(optimality ~ distance, data=data_h2, mean)  # deskriptiv
+
+# Logsitische Regression
+model <- glm(optimality ~ distance, data = data_h2, family = "binomial")
+summary(model)
+
+# Logistische Regression plotten
+ggplot(data=data_h2_a, aes(x=as.integer(as.factor(distance)), y=as.integer(optimality))) +
+  geom_point(position = position_jitter(w = 0.3, h = 0)) +
+  stat_smooth(method = "glm", color="red", se=TRUE, 
+                method.args = list(family=binomial)) +
+  stat_summary(fun = "mean", geom = "point", aes(group = 1), color = "red")
+
+ggplot(data=data_h2, aes(x=as.integer(as.factor(distance)), y=as.integer(optimality))) +
+  geom_point(position = position_jitter(w = 0.3, h = 0)) +
+  stat_smooth(method = "glm", color="red", se=TRUE, 
+                method.args = list(family=binomial)) +
+  stat_summary(fun = "mean", geom = "point", aes(group = 1), color = "red")
+
+ggplot(data=data_h2_b, aes(x=as.integer(as.factor(distance)), y=as.integer(optimality))) +
+  geom_point(position = position_jitter(w = 0.3, h = 0)) +
+  stat_smooth(method = "glm", color="red", se=TRUE, 
+                method.args = list(family=binomial)) +
+  stat_summary(fun = "mean", geom = "point", aes(group = 1), color = "red")
+```
+
+# Weitere Analysen
+```{r}
+# Wie oft kommt welche Bedingung vor (über Trials)?
+f0 <- hist(data[data$distance == 0, 'trial'], breaks=50)
+f1 <- hist(data[data$distance == 1, 'trial'], breaks=50)
+f2 <- hist(data[data$distance == 2, 'trial'], breaks=50)
+f3 <- hist(data[data$distance == 3, 'trial'], breaks=50)
+
+# Wie oft wird der habituelle Pfad gewählt, wenn er optimal ist (über Trials)?
+data$habit_path_chosen = data$habit_path == data$chosen_path
+c0 <- hist(data[(data$habit_path_chosen == T) & (data$distance == 0), 'trial'], breaks=50)
+barplot(c0$counts / f0$counts)
+
+# Wie oft wird der habituelle Pfad gewählt, wenn er *nicht* optimal ist (über Trials)?
+c0_1 <- hist(data[(data$distance == 1) & (data$habit_path_chosen == T), 'trial'], breaks=50)
+c0_2 <- hist(data[(data$distance == 2) & (data$habit_path_chosen == T), 'trial'], breaks=50)
+c0_3 <- hist(data[(data$distance == 3) & (data$habit_path_chosen == T), 'trial'], breaks=50)
+
+barplot(c0_1$counts / f1$counts)
+barplot(c0_2$counts / f2$counts)
+barplot(c0_3$counts / f3$counts)
+
+# Wie oft wurde korrekterweise ein anderer Pfad gewählt (über Trials)?
+c1 <- hist(data[(data$distance == 1) & (data$optimality == T), 'trial'], breaks=50)
+c2 <- hist(data[(data$distance == 2) & (data$optimality == T), 'trial'], breaks=50)
+c3 <- hist(data[(data$distance == 3) & (data$optimality == T), 'trial'], breaks=50)
+
+barplot(c1$counts / f1$counts)
+barplot(c2$counts / f2$counts)
+barplot(c3$counts / f3$counts)
+
+# Wie oft wurde der richtige Pfad gewählt (pro Bedingung)?
+aggregate(optimality ~ distance, data=data, mean)
+
+```
+
+
+
+
+# Interpretation der Koeffizienten
+```{r}
+# Design matrix ausgeben
+model.matrix(model)
+
+# Rechenbeispiel für den ersten Datenpunkt
+# log(odds(optimal = True | distance = 2)) = 1 * 1.6 + 2 * (-0.6) = 0.4
+# odds(optimal = True | distance = 2) = exp(0.4) = 1.5 (-> z.B. 3:2)
+# p(optimal = True | distance = 2) = 1.5 / (1 + 1.5) = 0.6
+```
+
+# Effektgröße bzw. pseudo R^2
+```{r}
+# log likelihood der Daten unter dem "Nullmodell" (d.h., keine Beziehung zwischen Distanz und Optimalität)
+p_null <- mean(data_h2$optimality)  # die Vorhersage des Nullmodells ist einfach, dass Probanden in etwa 60% der Fälle den optimalen Pfad wählen
+likelihoods_null <- ifelse(data_h2$optimality, p_null, 1-p_null) # Likelihood jedes Datenpunkts unter dem Nullmodell
+log_likelihood_null <- sum(log(likelihoods_null)) # Log-Likelihood der gesammten Daten unter dem Nullmodell
+
+# log likelihood der Daten unter dem Regressionsmodell (Optimalität hängt ab von Distanz)
+p_model <- sort(unique(predict(model, type = "response")), decreasing=T) # die Vorhersage des Regressionsmodells ist p=(0.73, 0.6, 0.45) für (nah, mittel, fern)
+likelihoods_model <- ifelse(data_h2$optimality, p_model[data_h2$distance], 1-p_model[data_h2$distance]) # Likelihood jedes Datenpunkts unter dem Regressionmodell
+log_likelihood_model <- sum(log(likelihoods_model)) # Log-Likelihood der gesammten Daten unter dem Regressionmodell
+
+# Pseudo R^2
+r2 <- (log_likelihood_null - log_likelihood_model) / log_likelihood_null
+r2
+```
+
+# Annahmen prüfen
+```{r}
+# Wie gut passt das Modell zu unseren Daten?
+data_h2$predicted_prob <- predict(model, type = "response")
+data_h2$predicted <- ifelse(data_h2$predicted_prob > .5, T, F)
+
+# Annahme 1: Linearität der log odds
+log_odds <- log(data_h2$predicted_prob / (1 - data_h2$predicted_prob))
+ggplot(data_h2, aes(x = as.integer(as.factor(distance)), y = log_odds)) +
+  geom_point() +
+  labs(title = "Logit Plot", x = "Distance", y = "Log-Odds")
+
+# Annahme 2: Residuen unabhängig vom Prädiktor
+residuals <- residuals(model)
+ggplot(data_h2, aes(x = as.integer(as.factor(distance)), y = residuals)) +
+  geom_point() +
+  labs(title = "Residuals", x = "Distance", y = "Residuals")
+
+# Annahme 3: Einflussreiche Datenpunkte / Outlier
+plot(model, which = 4, id.n = 3)
+```
+
+# Höhere Wahrscheinlichkeit den optimalen Pfad zu wählen, wenn der höchste Wert im Labyrinth auf ihm liegt?
+```{r}
+# Load reward-analysis data
+reward_analysis <- read.csv("./data_files/reward_analysis.csv", header = T)
+
+# Add data$optimality to reward_analysis as column
+reward_analysis$optimality <- data$optimality
+
+# Filter trials 30 to 100
+reward_analysis <- reward_analysis[reward_analysis$trial >= 30 & reward_analysis$trial <= 100,]
+
+# Logistische Regression zwischen optimality und in_optimal_path 
+model <- glm(optimality ~ in_optimal_path, data = reward_analysis, family = "binomial")
+summary(model)
+
+# Logistische Regression plotten
+ggplot(data=reward_analysis, aes(x=as.integer(as.factor(in_optimal_path)), y=as.integer(optimality))) +
+  geom_point(position = position_jitter(w = 0.3, h = 0)) +
+  stat_smooth(method = "glm", color="red", se=TRUE, 
+                method.args = list(family=binomial)) +
+  stat_summary(fun = "mean", geom = "point", aes(group = 1), color = "red")
+```

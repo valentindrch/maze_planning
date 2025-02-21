@@ -31,16 +31,18 @@ class PlanningModel():
     def __init__(self, alpha, rho):
         self.alpha = alpha  # learning rate
         self.rho = rho  # focus/planning utility
+        self.kappa = 0.5 # max reward focus utility
         self.model = BayesianNetwork([
             ('a0', 's1'),
-            ('s1', 'o1'),
+            ('s1', 'r1'),
             ('s1', 'a1'),
             ('s1', 's2'),
             ('a1', 's2'),
-            ('s2', 'o2'),
+            ('s2', 'r2'),
             ('s2', 'a2'),
             ('s2', 's3'),
             ('a2', 's3'),
+            ('s3', 'r3'),
             ('s3', 'o3')
         ])
         self.node_list = [node for node in self.model.nodes if node not in ['o1', 'o2', 'o3']]
@@ -66,6 +68,17 @@ class PlanningModel():
                 [0.01, 0.99]   
             ]
         )
+        # P(s1 | r1)
+        cpd_r1_given_s1 = TabularCPD(
+            variable='r1',
+            variable_card=2,
+            evidence=['s1'],
+            evidence_card=[2],
+            values=[
+                [0.5, 0.5],  
+                [0.5, 0.5]   
+            ]
+        )
         # P(a1 | s1)
         cpd_a1_given_s1 = TabularCPD(
             variable='a1',
@@ -85,6 +98,17 @@ class PlanningModel():
                 [0.01, 0.99, 0.0, 0.0],  
                 [0.0, 0.0, 0.99, 0.01],  
                 [0.0, 0.0, 0.01, 0.99]   
+            ]
+        )
+        # P(s2 | r2)
+        cpd_r2_given_s2 = TabularCPD(
+            variable='r2',
+            variable_card=2,
+            evidence=['s2'],
+            evidence_card=[4],
+            values=[
+                [0.5, 0.5, 0.5, 0.5],
+                [0.5, 0.5, 0.5, 0.5] 
             ]
         )
         # P(a2 | s2)
@@ -110,11 +134,22 @@ class PlanningModel():
                 [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.99]   
             ]
         )
-        self.model.add_cpds(cpd_a0, cpd_s1_given_a0, cpd_a1_given_s1, cpd_s2_given_s1_a1, cpd_a2_given_s2, cpd_s3_given_s2_a2)
+        # P(s3 | r3)
+        cpd_r3_given_s3 = TabularCPD(
+            variable='r3',
+            variable_card=2,
+            evidence=['s3'],
+            evidence_card=[8],
+            values=[
+                [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+                [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+            ]           
+        )
+        self.model.add_cpds(cpd_a0, cpd_s1_given_a0, cpd_a1_given_s1, cpd_s2_given_s1_a1, cpd_a2_given_s2, cpd_s3_given_s2_a2, cpd_r1_given_s1, cpd_r2_given_s2, cpd_r3_given_s3)
 
         # Create function to change goal
     
-    def def_goal(self, index):
+    def def_goal(self, index, maxima):
     
         # Make cpd array
         arr = np.zeros((2, 8))
@@ -123,7 +158,7 @@ class PlanningModel():
         arr[1, :] = self.rho
         arr[1, index] = 1 - self.rho
 
-        # Add to model
+        # Add to observational variable to model
         cpd_o3_given_s3 = TabularCPD(
             variable='o3',
             variable_card=2,
@@ -133,10 +168,53 @@ class PlanningModel():
         )
         self.model.add_cpds(cpd_o3_given_s3)
 
-    def plan(self, goal):
+        # make cpd arrays for r1, r2, r3
+        r1 = [[0.5, 0.5], [0.5, 0.5]]
+        r2 = [[0.5] * 4, [0.5] * 4]
+        r3 = [[0.5] * 8, [0.5] * 8]
+        
+        for state in maxima:
+            if state in ['l', 'r']:
+                r1[0][0 if state == 'l' else 1] = self.kappa
+                r1[1][0 if state == 'l' else 1] = 1 - self.kappa
+            elif state in ['ll', 'lr', 'rl', 'rr']:
+                idx = ['ll', 'lr', 'rl', 'rr'].index(state)
+                r2[0][idx] = self.kappa
+                r2[1][idx] = 1 - self.kappa
+            elif state in ['lll', 'llr', 'lrl', 'lrr', 'rll', 'rlr', 'rrl', 'rrr']:
+                idx = ['lll', 'llr', 'lrl', 'lrr', 'rll', 'rlr', 'rrl', 'rrr'].index(state)
+                r3[0][idx] = self.kappa
+                r3[1][idx] = 1 - self.kappa
+        
+        # Add to model
+        cpd_r1_given_s1 = TabularCPD(
+            variable='r1',
+            variable_card=2,
+            evidence=['s1'],
+            evidence_card=[2],
+            values=r1
+        )
+        cpd_r2_given_s2 = TabularCPD(
+            variable='r2',
+            variable_card=2,
+            evidence=['s2'],
+            evidence_card=[4],
+            values=r2
+        )
+        cpd_r3_given_s3 = TabularCPD(
+            variable='r3',
+            variable_card=2,
+            evidence=['s3'],
+            evidence_card=[8],
+            values=r3
+        )
+        self.model.add_cpds(cpd_r1_given_s1, cpd_r2_given_s2, cpd_r3_given_s3)
+        
+        
+    def plan(self, goal, maxima):
 
         # Define p(o3 | s3)
-        self.def_goal(goal)
+        self.def_goal(goal, maxima)
 
         # Inference
         inference = BeliefPropagation(self.model)
