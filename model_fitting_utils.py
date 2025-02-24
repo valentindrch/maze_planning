@@ -1,6 +1,8 @@
 import random
 import numpy as np
 from sklearn.model_selection import KFold
+import os
+import pickle 
 
 
 # Splits the experimental data of one participant into training and testing sets
@@ -132,7 +134,7 @@ def transform_to_binary_tree(matrix):
     }
     return tree
 
-def max_rewards(rewards):
+def max_rewards_trial(rewards):
     '''
     Input: A List of 8 arrays which depict the reward distribution for a specific trial.
     Output: Returns the states on which a maximum reward lies. 
@@ -169,3 +171,18 @@ def max_rewards(rewards):
 
     return max_states
 
+def load_reward_data(folder_path):
+    reward_data = {}
+    for filename in os.listdir(folder_path):
+        file_extension = os.path.splitext(filename)[1]
+        if file_extension == '' or file_extension == '.pkl':
+            file_path = os.path.join(folder_path, filename)
+            try:
+                with open(file_path, 'rb') as file:
+                    data = pickle.load(file)
+                    # Extract the numeric part of the filename to use as the key
+                    key = filename.replace('rewards_', '').replace('.pkl', '')
+                    reward_data[key] = data
+            except Exception as e:
+                print(f"Failed to load file: {file_path}, error: {e}")
+    return reward_data

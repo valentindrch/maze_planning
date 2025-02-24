@@ -28,10 +28,10 @@ class Dirichlet():
 
 class PlanningModel():
 
-    def __init__(self, alpha, rho):
+    def __init__(self, alpha, rho, kappa):
         self.alpha = alpha  # learning rate
         self.rho = rho  # focus/planning utility
-        self.kappa = 0.5 # max reward focus utility
+        self.kappa = kappa # max reward focus utility
         self.model = BayesianNetwork([
             ('a0', 's1'),
             ('s1', 'r1'),
@@ -45,7 +45,7 @@ class PlanningModel():
             ('s3', 'r3'),
             ('s3', 'o3')
         ])
-        self.node_list = [node for node in self.model.nodes if node not in ['o1', 'o2', 'o3']]
+        self.node_list = [node for node in self.model.nodes if node not in ['r1', 'r2', 'r3', 'o3']]
 
         # Initialize the Dirichlet priors
         self.alpha_a0 = Dirichlet(shape=(2, 1), params=np.array([[self.alpha], [self.alpha]]))  # Dirichlet prior for a0
@@ -219,7 +219,7 @@ class PlanningModel():
         # Inference
         inference = BeliefPropagation(self.model)
         self.prior = inference.query(self.node_list).values
-        self.posterior = inference.query(self.node_list, evidence={'o3': 0}).values
+        self.posterior = inference.query(self.node_list, evidence={'r1' : 0, 'r2' : 0, 'r3' : 0, 'o3': 0}).values
 
         # Get relevant values
         self.posterior_a = self.posterior.sum(axis=(1, 3, 5))
@@ -276,7 +276,7 @@ class PlanningModel():
     def get_it_measures(self):
 
         self.complexity = entropy(self.posterior.flatten(), self.prior.flatten())
-        self.error = entropy(self.posterior_s3) + entropy(self.posterior_s3, self.model.get_cpds()[6].values[0, :])
+        self.error = entropy(self.posterior_s3) + entropy(self.posterior_s3, self.model.get_cpds()[8].values[0, :])
         self.surprise = self.complexity + self.error
 
         return self.complexity, self.error, self.surprise

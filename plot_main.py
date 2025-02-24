@@ -97,3 +97,7 @@ plt.tight_layout()
 plt.show()
 
 fig.savefig('./figs/main_plot.pdf')
+
+# Main Effect: Max Reward on Optimal Path {true, false} 
+df_rewards = pd.read_csv('./data_files/reward_analysis.csv')
+

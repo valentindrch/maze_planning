@@ -41,9 +41,9 @@ def find_max_reward_paths(paths):
 
 
 
-reward_data = load_reward_data(r'C:\Users\valen\OneDrive\Dokumente\7Semester\Bachelorarbeit\maze_planning\reward_data')
+reward_data = load_reward_data(r'C:\Users\valen\OneDrive\Dokumente\7Semester\Bachelorarbeit\maze_planning\data_files\reward_data')
 
-analysis_data = {'id': [], 'trials': [], 'optimal_path': [], 'highest_reward_path': [], 'number_max_rewards': [], 'in_optimal_path': [], 'in_optimal_path_percentage': [], 'only_one_max_reward_percentage': []}
+analysis_data = {'id': [], 'trials': [], 'optimal_path': [], 'highest_reward_path': [], 'number_max_rewards': [], 'in_optimal_path': []}
 
 # List of Reward Keys
 reward_keys = list(reward_data.keys())
@@ -65,15 +65,14 @@ for key in reward_keys:
         analysis_data['in_optimal_path'].append(data[i][2] in max_indices)
 
 
-# Calculate the percentage of trials where the highest reward path contains the optimal path
-analysis_data['in_optimal_path_percentage'] = np.mean(analysis_data['in_optimal_path'])
-
-# Calculate the percentage of trials where the highest reward path contains only one maximum reward
-analysis_data['only_one_max_reward_percentage'] = np.mean(np.array(analysis_data['number_max_rewards']) == 1)
 
 
 # Convert analysis_data to a DataFrame
 df = pd.DataFrame(analysis_data)
+
+
+# Convert 'id' in df_rewards from 'rewards_1' → '1' (remove 'rewards_' prefix)
+df['id'] = df['id'].str.replace('rewards_', '', regex=True).astype(int)
 
 # Save the DataFrame to a CSV file
 df.to_csv('./data_files/reward_analysis.csv', index=False)
