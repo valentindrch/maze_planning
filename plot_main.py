@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import sem
+import os
 
 # Create 2x2 subplot layout
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 6))
@@ -55,7 +56,7 @@ ax2.legend()
 ax2.grid(True)
 
 # Plot 3: Parameter scatter
-results = pd.read_csv('grid_search_result.csv')
+results = pd.read_csv('data_files/grid_search_result.csv')
 opt_params = results.loc[results.groupby(['id', 'model_type'])['ll'].idxmax()]
 sns.regplot(x='alpha', y='rho', data=opt_params, ci=95, 
             scatter_kws={'alpha':0.6}, ax=ax3)
@@ -98,6 +99,34 @@ plt.show()
 
 fig.savefig('./figs/main_plot.pdf')
 
-# Main Effect: Max Reward on Optimal Path {true, false} 
-df_rewards = pd.read_csv('./data_files/reward_analysis.csv')
+# Main Effect: Max Reward on Optimal Path? {true, false} -> x-axis
+#                Optimality -> y-axis
+# Plot Full_Prediction and Optimality against on_optimal_path
+# Group by 'on_optimal_path'
+grouped_on_path = df.groupby('on_optimal_path')
+means_on_path = grouped_on_path[['optimality', 'full_prediction']].mean()
+stds_on_path = grouped_on_path[['optimality', 'full_prediction']].sem()
+
+# Create figure
+fig, ax2 = plt.subplots()
+
+# Plot data with error bars
+ax2.errorbar(means_on_path.index, means_on_path['optimality'], yerr=stds_on_path['optimality'],
+             label='data', marker='o', capsize=5, linestyle='-', zorder=3)
+ax2.errorbar(means_on_path.index, means_on_path['full_prediction'], yerr=stds_on_path['full_prediction'],
+             label='model', marker='o', capsize=5, linestyle='-', zorder=3)
+
+# Labels and formatting
+ax2.set_xlabel('On Optimal Path (True/False)')
+ax2.set_ylabel('Probability of Optimal Choice')
+ax2.set_title('Probability of Detecting Optimal Path (By Path Condition)')
+ax2.set_ylim(0, 1)
+ax2.set_xticks([0, 1])  # Ensure only 0 and 1 are shown on x-axis
+ax2.set_xticklabels(['False', 'True'])
+ax2.legend()
+ax2.grid(True)
+
+# Show plot
+plt.show()
+
 

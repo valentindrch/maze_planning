@@ -3,6 +3,8 @@ from pgmpy.models import BayesianNetwork
 from pgmpy.factors.discrete import TabularCPD
 from pgmpy.inference import BeliefPropagation
 from scipy.stats import entropy
+import sys
+import io
 
 from sampling import Sampler
 
@@ -150,7 +152,7 @@ class PlanningModel():
         # Create function to change goal
     
     def def_goal(self, index, maxima):
-    
+        
         # Make cpd array
         arr = np.zeros((2, 8))
         arr[0, :] = 1 - self.rho
@@ -158,7 +160,7 @@ class PlanningModel():
         arr[1, :] = self.rho
         arr[1, index] = 1 - self.rho
 
-        # Add to observational variable to model
+        # Add observational variable to model
         cpd_o3_given_s3 = TabularCPD(
             variable='o3',
             variable_card=2,
@@ -209,6 +211,7 @@ class PlanningModel():
             values=r3
         )
         self.model.add_cpds(cpd_r1_given_s1, cpd_r2_given_s2, cpd_r3_given_s3)
+
         
         
     def plan(self, goal, maxima):

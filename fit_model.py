@@ -6,8 +6,9 @@ import logging
 from model import PlanningModel
 from model_fitting_utils import split_data, k_cross_validation, load_reward_data, max_rewards_trial
 
-# Suppress warnings from pgmpy
-logging.getLogger("pgmpy").setLevel(logging.ERROR)
+# Supress pgmpy warnings
+logger = logging.getLogger()
+logger.setLevel(logging.CRITICAL)   
 
 
 # Define Grid Search parameters
@@ -42,7 +43,7 @@ exp_data['plan_ll'] = np.nan
 exp_data['plan_rho'] = np.nan
 exp_data['plan_kappa'] = np.nan
 ids = np.unique(exp_data['id'])
-ids = ids[:1]
+
 
 # Define train and test sets (in original dataframe)
 for i in ids:
@@ -112,12 +113,25 @@ def fit_partipant(id, alphas, rhos, kappas):
     # Grid Search
     result = {'id': [], 'rho': [], 'alpha': [], 'kappa': [], 'll': [], 'model_type': []}
 
+    #-----------------------------------------------------------
+    # Progress Prints
     print(f'Fitting full model for participant {id}')
+    total_iterations = len(rhos) * len(alphas) * len(kappas)
+    print(f'Total iterations necessary: {total_iterations}')
+    current_iteration = 0
+    #-----------------------------------------------------------
 
     for rho in rhos:
-        print(f'Progress: {round((rho / len(rhos)) * 100, 2)}%')
         for alpha in alphas:
-            for kappa in kappas:
+            for kappa in kappas: 
+                #-----------------------------------------------------------
+                # Progress bar
+                current_iteration += 1
+
+                progress = (current_iteration / total_iterations) * 100
+                print(f'Percentage done: {round(progress, 3)}%')
+                #-----------------------------------------------------------
+
                 predictions = run_model(exp_data_id, reward_data_id, alpha, rho, kappa)
                 mean_log_likelihood = k_cross_validation(predictions['prediction']._values, actual_choices, k=5)
 
@@ -128,36 +142,27 @@ def fit_partipant(id, alphas, rhos, kappas):
                 result['ll'].append(mean_log_likelihood)
                 result['model_type'].append('full')
 
-            
 
-    print('Fitting learning model')
-    
-    for alpha in alphas:
+    predictions = run_model(exp_data_id, reward_data_id, alpha=1.0, rho=.95, kappa=0.7, model_type='learn_only')
+    mean_log_likelihood = k_cross_validation(predictions['prediction']._values, actual_choices, k=5)
 
-            predictions = run_model(exp_data_id, reward_data_id, alpha=alpha, rho=.95, kappa=0.5, model_type='learn_only')
-            mean_log_likelihood = k_cross_validation(predictions['prediction']._values, actual_choices, k=5)
+    result['id'].append(id)
+    result['rho'].append(rho)
+    result['alpha'].append(alpha)
+    result['kappa'].append(kappa)
+    result['ll'].append(mean_log_likelihood)
+    result['model_type'].append('learn_only')
 
-            result['id'].append(id)
-            result['rho'].append(.95)
-            result['alpha'].append(alpha)
-            result['kappa'].append(0.5)
-            result['ll'].append(mean_log_likelihood)
-            result['model_type'].append('learn_only')
 
-    print('Fitting planning model')
+    predictions = run_model(exp_data_id, reward_data_id, alpha=1.0, rho=.95, kappa=.7, model_type='plan_only')
+    mean_log_likelihood = k_cross_validation(predictions['prediction']._values, actual_choices, k=5)
 
-    for rho in rhos:
-        for kappa in kappas:
-            
-            predictions = run_model(exp_data_id, reward_data_id, alpha=1, rho=rho, kappa=kappa, model_type='plan_only')
-            mean_log_likelihood = k_cross_validation(predictions['prediction']._values, actual_choices, k=5)
-
-            result['id'].append(id)
-            result['rho'].append(rho)
-            result['alpha'].append(1)
-            result['kappa'].append(kappa)
-            result['ll'].append(mean_log_likelihood)
-            result['model_type'].append('plan_only')
+    result['id'].append(id)
+    result['rho'].append(rho)
+    result['alpha'].append(alpha)
+    result['kappa'].append(kappa)
+    result['ll'].append(mean_log_likelihood)
+    result['model_type'].append('plan_only')
 
     return pd.DataFrame(result)
 
@@ -177,7 +182,7 @@ def predict(parameters):
         rho = parameters.loc[(parameters['id'] == i) & (parameters['model_type'] == 'full'), 'rho']._values[0]
         kappa = parameters.loc[(parameters['id'] == i) & (parameters['model_type'] == 'full'), 'kappa']._values[0]
 
-        predictions = run_model(exp_data_id, reward_data_id, alpha, rho)
+        predictions = run_model(exp_data_id, reward_data_id, alpha, rho, kappa)
         pred_vals = predictions['prediction']._values
 
         exp_data.loc[exp_data['id'] == i, 'full_prediction'] = pred_vals
@@ -196,7 +201,7 @@ def predict(parameters):
         kappa = parameters.loc[(parameters['id'] == i) & (parameters['model_type'] == 'learn_only'), 'kappa']._values[0]
         
 
-        predictions = run_model(exp_data_id, alpha, rho, model_type='learn_only')
+        predictions = run_model(exp_data_id, reward_data_id, alpha, rho, kappa, model_type='learn_only')
         pred_vals = predictions['prediction']._values
 
         exp_data.loc[exp_data['id'] == i, 'learn_prediction'] = pred_vals
@@ -210,7 +215,7 @@ def predict(parameters):
         rho = parameters.loc[(parameters['id'] == i) & (parameters['model_type'] == 'plan_only'), 'rho']._values[0]
         kappa = parameters.loc[(parameters['id'] == i) & (parameters['model_type'] == 'plan_only'), 'kappa']._values[0]
 
-        predictions = run_model(exp_data_id, alpha, rho, model_type='plan_only')
+        predictions = run_model(exp_data_id, reward_data_id, alpha, rho, kappa, model_type='plan_only')
         pred_vals = predictions['prediction']._values
 
         exp_data.loc[exp_data['id'] == i, 'plan_prediction'] = pred_vals
@@ -237,7 +242,7 @@ else:
 # Make predictions
 opt_params = results.loc[results.groupby(['id', 'model_type'])['ll'].idxmax()]
 predict(opt_params)
-exp_data.to_csv('./data_files/maze_data_fitted.csv')
+exp_data.to_csv('./data_files/maze_data_fitted_ext.csv')
 
 
 a = 0
