@@ -4,11 +4,12 @@ import seaborn as sns
 from scipy.stats import sem
 import os
 
+
 # Create 2x2 subplot layout
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 6))
 
 # Plot 1: Main effect (distance plot)
-df = pd.read_csv('./data_files/maze_data_fitted.csv')
+df = pd.read_csv('./data_files/maze_data_fitted_ext.csv')
 df_30 = df.loc[df['trial'] >= 30, :]
 grouped = df_30.groupby('distance')
 means = grouped[['optimality', 'full_prediction']].mean()
@@ -130,3 +131,4 @@ ax2.grid(True)
 plt.show()
 
 
+df_temp = pd.read_csv('data_files/maze_data_fitted.csv')
