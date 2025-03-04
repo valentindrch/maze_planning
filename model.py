@@ -175,7 +175,7 @@ class PlanningModel():
         r2 = [[0.5] * 4, [0.5] * 4]
         r3 = [[0.5] * 8, [0.5] * 8]
         
-        for state in maxima:
+        for state, _ in maxima:
             if state in ['l', 'r']:
                 r1[0][0 if state == 'l' else 1] = self.kappa
                 r1[1][0 if state == 'l' else 1] = 1 - self.kappa

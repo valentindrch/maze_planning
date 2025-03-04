@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import sem
+import numpy as np
 import os
 
 
@@ -11,7 +12,7 @@ fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 6))
 # Plot 1: Main effect (distance plot)
 df = pd.read_csv('./data_files/maze_data_fitted_ext.csv')
 df_30 = df.loc[df['trial'] >= 30, :]
-grouped = df_30.groupby('distance')
+""" grouped = df_30.groupby('distance')
 means = grouped[['optimality', 'full_prediction']].mean()
 stds = grouped[['optimality', 'full_prediction']].sem()
 
@@ -103,7 +104,6 @@ fig.savefig('./figs/main_plot.pdf')
 # Main Effect: Max Reward on Optimal Path? {true, false} -> x-axis
 #                Optimality -> y-axis
 # Plot Full_Prediction and Optimality against on_optimal_path
-# Group by 'on_optimal_path'
 grouped_on_path = df.groupby('on_optimal_path')
 means_on_path = grouped_on_path[['optimality', 'full_prediction']].mean()
 stds_on_path = grouped_on_path[['optimality', 'full_prediction']].sem()
@@ -128,7 +128,72 @@ ax2.legend()
 ax2.grid(True)
 
 # Show plot
+plt.show() """
+
+def t_test(vector_1, vector_2):
+    from scipy.stats import ttest_ind
+    t_stat, p_value = ttest_ind(vector_1, vector_2)
+    return t_stat, p_value
+
+def cohens_d(x, y):
+    return (np.mean(x) - np.mean(y)) / ((np.std(x, ddof=1) + np.std(y, ddof=1)) / 2)
+
+df_temp = pd.read_csv('data_files/maze_data_fitted.csv')
+df_temp_30 = df_temp.loc[df['trial'] >= 30, :]
+
+df['prob_diff'] = df_30['full_prediction'] - df_temp_30['full_prediction'] 
+df['surprise_diff'] = df_30['full_surprise'] - df_temp_30['full_surprise']
+df['error_diff'] = df_30['full_error'] - df_temp_30['full_error']
+df['ll_diff'] = df_30['full_ll'] - df_temp_30['full_ll']
+
+# Plot histogram of probability differences create this plot on axis 1
+sns.histplot(df['prob_diff'], ax=ax1, kde=True)
+ax1.set_xlabel('Probability Difference')
+ax1.set_ylabel('Frequency')
+ax1.set_title('Probability Difference between Models')
+ax1.grid(True)
+
+# Same for the other three variables
+sns.histplot(df['surprise_diff'], ax=ax2, kde=True)
+ax2.set_xlabel('Surprise Difference')
+ax2.set_ylabel('Frequency')
+ax2.set_title('Surprise Difference between Models')
+ax2.grid(True)
+
+sns.histplot(df['error_diff'], ax=ax3, kde=True)
+ax3.set_xlabel('Error Difference')
+ax3.set_ylabel('Frequency')
+ax3.set_title('Error Difference between Models')
+ax3.grid(True)
+
+sns.histplot(df['ll_diff'], ax=ax4, kde=True)
+ax4.set_xlabel('Loglikelihood Difference')
+ax4.set_ylabel('Frequency')
+ax4.set_title('Loglikelihood Difference between Models')
+ax4.grid(True)
+
+plt.tight_layout()
 plt.show()
 
 
-df_temp = pd.read_csv('data_files/maze_data_fitted.csv')
+
+
+# Do t-test for loglikelihood, full_surprise, full_error, full_prediction
+t_stat, p_value = t_test(df_30['full_ll'], df_temp_30['full_ll'])
+print(f'Loglikelihood: t={t_stat}, p={p_value}')
+
+t_stat, p_value = t_test(df_30['full_surprise'], df_temp_30['full_surprise'])
+print(f'Surprise: t={t_stat}, p={p_value}')
+d = cohens_d(df_30['full_surprise'], df_temp_30['full_surprise'])
+print(f'Cohen\'s d: {d}')
+
+t_stat, p_value = t_test(df_30['full_error'], df_temp_30['full_error'])
+print(f'Error: t={t_stat}, p={p_value}')
+d = cohens_d(df_30['full_error'], df_temp_30['full_error'])
+print(f'Cohen\'s d: {d}')
+
+t_stat, p_value = t_test(df_30['full_prediction'], df_temp_30['full_prediction'])
+print(f'Prediction: t={t_stat}, p={p_value}')
+
+
+

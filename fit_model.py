@@ -5,6 +5,7 @@ import logging
 
 from model import PlanningModel
 from model_fitting_utils import split_data, k_cross_validation, load_reward_data, max_rewards_trial
+from tqdm import tqdm
 
 # Supress pgmpy warnings
 logger = logging.getLogger()
@@ -12,8 +13,10 @@ logger.setLevel(logging.CRITICAL)
 
 
 # Define Grid Search parameters
-alphas = np.logspace(-4, 4, 20, base=np.e).round(2)  # from .02 to 55 ish
-rhos = np.linspace(.7, .99, 20)
+#alphas = np.logspace(-4, 4, 10, base=np.e).round(2)  # from .02 to 55 ish
+alphas = np.array([0.2, 1.0, 5.0, 30.0])
+#rhos = np.linspace(.7, .99, 10)
+rhos = np.array([0.95, 0.9, 0.8, 0.75])
 kappas = np.linspace(.5, .9, 20)
 
 # Load reward data
@@ -43,7 +46,6 @@ exp_data['plan_ll'] = np.nan
 exp_data['plan_rho'] = np.nan
 exp_data['plan_kappa'] = np.nan
 ids = np.unique(exp_data['id'])
-
 
 # Define train and test sets (in original dataframe)
 for i in ids:
@@ -113,34 +115,24 @@ def fit_partipant(id, alphas, rhos, kappas):
     # Grid Search
     result = {'id': [], 'rho': [], 'alpha': [], 'kappa': [], 'll': [], 'model_type': []}
 
-    #-----------------------------------------------------------
-    # Progress Prints
-    print(f'Fitting full model for participant {id}')
-    total_iterations = len(rhos) * len(alphas) * len(kappas)
-    print(f'Total iterations necessary: {total_iterations}')
-    current_iteration = 0
-    #-----------------------------------------------------------
+    total_combinations = len(alphas) * len(rhos) * len(kappas)
+    with tqdm(total=total_combinations, desc=f"Fitting participant {id}") as pbar:
+        for rho in rhos:
+            for alpha in alphas:
+                for kappa in kappas: 
+                    
 
-    for rho in rhos:
-        for alpha in alphas:
-            for kappa in kappas: 
-                #-----------------------------------------------------------
-                # Progress bar
-                current_iteration += 1
+                    predictions = run_model(exp_data_id, reward_data_id, alpha, rho, kappa)
+                    mean_log_likelihood = k_cross_validation(predictions['prediction']._values, actual_choices, k=5)
 
-                progress = (current_iteration / total_iterations) * 100
-                print(f'Percentage done: {round(progress, 3)}%')
-                #-----------------------------------------------------------
+                    result['id'].append(id)
+                    result['rho'].append(rho)
+                    result['alpha'].append(alpha)
+                    result['kappa'].append(kappa)
+                    result['ll'].append(mean_log_likelihood)
+                    result['model_type'].append('full')
 
-                predictions = run_model(exp_data_id, reward_data_id, alpha, rho, kappa)
-                mean_log_likelihood = k_cross_validation(predictions['prediction']._values, actual_choices, k=5)
-
-                result['id'].append(id)
-                result['rho'].append(rho)
-                result['alpha'].append(alpha)
-                result['kappa'].append(kappa)
-                result['ll'].append(mean_log_likelihood)
-                result['model_type'].append('full')
+                    pbar.update(1)  # Update progress bar
 
 
     predictions = run_model(exp_data_id, reward_data_id, alpha=1.0, rho=.95, kappa=0.7, model_type='learn_only')
@@ -229,7 +221,7 @@ def predict(parameters):
 
 # Fit parameters
 if True:
-    results = Parallel(n_jobs=3)(
+    results = Parallel(n_jobs=1)(
             delayed(fit_partipant)(id, alphas, rhos, kappas) 
             for id in ids
         )
